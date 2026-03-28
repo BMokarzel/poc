@@ -1,1 +1,101 @@
-{}
+{
+  "id": "DEV-001",
+  "name": "Lucas Mendes",
+  "role": "Software Engineer",
+  "squad": "Trailblazer",
+  "startDate": "2026-03-10",
+
+  "skills": {
+    "description": "Score de 0 a 10 por tecnologia. Alimenta o radar chart do dashboard. Atualizado a cada avaliação via profileUpdate.",
+    "scores": {
+      "JavaScript":    8,
+      "Node.js":       7,
+      "NestJS":        5,
+      "OpenTelemetry": 2,
+      "Honeycomb":     1,
+      "Splunk":        2,
+      "MongoDB":       6,
+      "Redis":         3
+    }
+  },
+
+  "strengths": [
+    "Boa leitura de código existente antes de modificar",
+    "Testes unitários bem estruturados e com casos limite cobertos",
+    "Nomeclatura consistente com o padrão do projeto"
+  ],
+
+  "improvementAreas": [
+    "Observabilidade: sem histórico com OTel, traces e métricas",
+    "Redis: conhecimento teórico mas sem uso prático em produção",
+    "Tende a não validar query params com DTOs — recebe string crua"
+  ],
+
+  "patterns": [
+    {
+      "pattern": "Implementa a feature corretamente mas esquece de validar o input com DTO",
+      "type": "negative",
+      "status": "active",
+      "firstSeenAt": "T-001",
+      "lastSeenAt": "T-002"
+    },
+    {
+      "pattern": "Testes bem organizados com describe aninhado e casos de borda cobertos",
+      "type": "positive",
+      "status": "active",
+      "firstSeenAt": "T-001",
+      "lastSeenAt": "T-002"
+    },
+    {
+      "pattern": "Lógica de negócio colocada no controller em vez do service",
+      "type": "negative",
+      "status": "resolved",
+      "firstSeenAt": "T-001",
+      "lastSeenAt": "T-001"
+    }
+  ],
+
+  "evaluationHistory": [
+    {
+      "taskId": "T-001",
+      "evaluatedAt": "2026-03-14T10:22:00Z",
+      "finalLevel": "sufficient",
+      "highlights": {
+        "strengths": [
+          "Filtro implementado no service, não no controller",
+          "Todos os três cenários do DoD cobertos por testes"
+        ],
+        "gaps": [
+          "Query param recebido como string sem DTO de validação",
+          "Filtro aplicado sobre o objeto mapeado (sem sections) — funcionou por acaso com ajuste posterior"
+        ]
+      }
+    },
+    {
+      "taskId": "T-002",
+      "evaluatedAt": "2026-03-18T14:05:00Z",
+      "finalLevel": "very_good",
+      "highlights": {
+        "strengths": [
+          "Módulo estruturado corretamente seguindo o padrão NestJS do projeto",
+          "Interface Banner criada e usada consistentemente",
+          "Conteúdo dos banners coerente com o domínio de e-commerce"
+        ],
+        "gaps": [
+          "Query param ainda sem DTO — padrão recorrente do T-001"
+        ]
+      }
+    }
+  ],
+
+  "studyPlan": {
+    "active": true,
+    "currentPlanFile": "./study/plan.json"
+  },
+
+  "meta": {
+    "version": "1.0",
+    "lastUpdatedAt": "2026-03-18T14:05:00Z",
+    "lastUpdatedBy": "evaluator"
+  }
+}

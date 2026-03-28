@@ -1,26 +1,290 @@
 {
   "id": "PLAN-001",
-  "personId": "",
+  "personId": "DEV-001",
   "version": "1.0",
 
   "meta": {
-    "generatedAt": "",
+    "generatedAt": "2026-03-18T14:05:00Z",
     "generatedBy": "evaluator",
-    "basedOnEvaluations": [],
-    "totalDurationWeeks": 0,
-    "startDate": "",
-    "endDate": ""
+    "basedOnEvaluations": ["T-001", "T-002"],
+    "totalDurationWeeks": 4,
+    "startDate": "2026-03-24",
+    "endDate": "2026-04-18"
   },
 
   "diagnosis": {
-    "description": "",
-    "weaknesses": [],
-    "strengths": []
+    "description": "Lucas demonstra base sólida em JavaScript e Node.js e escreve testes de qualidade. O gap principal é observabilidade — OpenTelemetry, Honeycomb e Splunk estão zerados. Redis foi identificado como conhecimento teórico sem uso prático. Há um padrão recorrente de não validar input com DTOs que precisa ser endereçado antes das tasks de nível médio.",
+    "weaknesses": [
+      {
+        "area": "Validação de input com DTOs",
+        "technology": "NestJS",
+        "evidence": "Em T-001 e T-002, query params foram recebidos como string sem DTO de validação — padrão recorrente confirmado em duas tasks consecutivas",
+        "priority": "high"
+      },
+      {
+        "area": "Observabilidade distribuída",
+        "technology": "OpenTelemetry",
+        "evidence": "Score 2/10 em OTel. Nenhuma das tasks até agora exigiu instrumentação — mas T-005 é hard e exige setup completo com Jaeger, Prometheus e Grafana",
+        "priority": "high"
+      },
+      {
+        "area": "Cache e estruturas de dados in-memory",
+        "technology": "Redis",
+        "evidence": "Score 3/10 em Redis. T-004 exige cache com invalidação — sem prática prévia o dev pode cometer erros de serialização ou estratégia",
+        "priority": "medium"
+      }
+    ],
+    "strengths": [
+      {
+        "area": "Testes unitários",
+        "note": "Consistentemente bem estruturados nas duas tasks — não precisa de foco adicional agora"
+      },
+      {
+        "area": "Estrutura de módulos NestJS",
+        "note": "T-002 demonstrou boa compreensão do padrão module/controller/service"
+      }
+    ]
   },
 
-  "topics": [],
+  "topics": [
+    {
+      "id": "STUDY-1",
+      "title": "Validação de input com class-validator e DTOs no NestJS",
+      "technology": "NestJS",
+      "category": "patterns",
+      "priority": "high",
+      "rationale": "Padrão recorrente identificado em T-001 e T-002: query params recebidos sem DTO de validação. As próximas tasks têm inputs mais complexos — solidificar esse padrão agora evita o gap se acumular.",
+      "timeline": {
+        "startWeek": 1,
+        "endWeek": 1,
+        "durationDays": 3,
+        "effort": "light"
+      },
+      "objectives": [
+        "Criar DTOs com @IsString, @IsOptional, @IsInt e @Type para query params e body",
+        "Entender a diferença entre ValidationPipe com transform:true e whitelist:true",
+        "Saber quando usar class-transformer junto com class-validator"
+      ],
+      "references": [
+        {
+          "title": "NestJS — Validation",
+          "url": "https://docs.nestjs.com/techniques/validation",
+          "type": "doc",
+          "estimatedTime": "45min",
+          "note": "Documentação oficial cobrindo ValidationPipe, DTOs e class-validator"
+        },
+        {
+          "title": "class-validator — GitHub",
+          "url": "https://github.com/typestack/class-validator",
+          "type": "repo",
+          "estimatedTime": "20min",
+          "note": "Lista completa de decorators — útil como referência rápida"
+        }
+      ],
+      "milestones": [
+        {
+          "id": "MS-1",
+          "description": "Criar DTO para os query params das tasks T-001 e T-002 e verificar que ValidationPipe rejeita valores inválidos",
+          "type": "implementation"
+        },
+        {
+          "id": "MS-2",
+          "description": "Escrever um teste que confirma que um request com query param inválido retorna 400",
+          "type": "exercise"
+        }
+      ],
+      "completionStatus": "in_progress"
+    },
+    {
+      "id": "STUDY-2",
+      "title": "Fundamentos de OpenTelemetry: traces, spans e propagação de contexto",
+      "technology": "OpenTelemetry",
+      "category": "observability",
+      "priority": "high",
+      "rationale": "Score 2/10 em OTel e T-005 é a task de maior complexidade do onboarding. Sem entender o modelo de dados, o dev vai configurar o SDK sem entender o que está fazendo.",
+      "timeline": {
+        "startWeek": 1,
+        "endWeek": 2,
+        "durationDays": 7,
+        "effort": "moderate"
+      },
+      "objectives": [
+        "Entender a diferença entre trace, span e contexto de propagação",
+        "Saber o que é um exporter e como OTLP se diferencia de exporters diretos",
+        "Configurar um NodeSDK básico com auto-instrumentação e exportar para Jaeger localmente",
+        "Entender por que o SDK precisa ser inicializado antes do require dos módulos instrumentados"
+      ],
+      "references": [
+        {
+          "title": "OpenTelemetry — Getting Started (Node.js)",
+          "url": "https://opentelemetry.io/docs/languages/js/getting-started/nodejs/",
+          "type": "doc",
+          "estimatedTime": "1h",
+          "note": "Tutorial oficial cobrindo setup do SDK, auto-instrumentação e exportação"
+        },
+        {
+          "title": "OpenTelemetry — Concepts: Signals",
+          "url": "https://opentelemetry.io/docs/concepts/signals/",
+          "type": "doc",
+          "estimatedTime": "30min",
+          "note": "Explica traces, métricas e logs como sinais distintos"
+        },
+        {
+          "title": "OpenTelemetry JS — GitHub",
+          "url": "https://github.com/open-telemetry/opentelemetry-js",
+          "type": "repo",
+          "estimatedTime": "20min",
+          "note": "Exemplos de configuração do SDK — útil para ver a ordem correta de imports"
+        }
+      ],
+      "milestones": [
+        {
+          "id": "MS-3",
+          "description": "Criar script Node.js simples que gera um trace com dois spans e exibe no console com ConsoleSpanExporter",
+          "type": "exercise"
+        },
+        {
+          "id": "MS-4",
+          "description": "Subir Jaeger localmente via Docker e redirecionar o exporter para OTLP — confirmar que o trace aparece no Jaeger UI",
+          "type": "implementation"
+        },
+        {
+          "id": "MS-5",
+          "description": "Escrever em texto livre: o que acontece se o SDK for inicializado depois do require do módulo HTTP do Node.js",
+          "type": "reflection"
+        }
+      ],
+      "completionStatus": "not_started"
+    },
+    {
+      "id": "STUDY-3",
+      "title": "Redis na prática: cache com TTL e invalidação",
+      "technology": "Redis",
+      "category": "database",
+      "priority": "medium",
+      "rationale": "T-004 exige cache com invalidação e TTL. O gap não é conceitual — é prático. Foco em serialização correta de objetos Mongoose e estratégias de invalidação por chave.",
+      "timeline": {
+        "startWeek": 3,
+        "endWeek": 3,
+        "durationDays": 4,
+        "effort": "moderate"
+      },
+      "objectives": [
+        "Configurar CacheModule com Redis no NestJS via @nestjs/cache-manager",
+        "Implementar cache manual com CACHE_MANAGER (set, get, del) com chaves explícitas",
+        "Entender o problema de serializar instâncias Mongoose e como resolvê-lo com .lean() ou .toObject()",
+        "Implementar invalidação de cache após escrita"
+      ],
+      "references": [
+        {
+          "title": "NestJS — Caching",
+          "url": "https://docs.nestjs.com/techniques/caching",
+          "type": "doc",
+          "estimatedTime": "40min",
+          "note": "Documentação oficial do CacheModule com Redis"
+        },
+        {
+          "title": "Mongoose — Queries: lean()",
+          "url": "https://mongoosejs.com/docs/tutorials/lean.html",
+          "type": "doc",
+          "estimatedTime": "20min",
+          "note": "Explica por que lean() retorna POJOs em vez de Documents — relevante para serialização no cache"
+        }
+      ],
+      "milestones": [
+        {
+          "id": "MS-6",
+          "description": "Implementar cache manual em endpoint de leitura do Core com set/get/del e TTL, usando .lean() na query Mongoose",
+          "type": "implementation"
+        },
+        {
+          "id": "MS-7",
+          "description": "Escrever testes mockando CACHE_MANAGER que verificam cache hit, cache miss e invalidação",
+          "type": "exercise"
+        }
+      ],
+      "completionStatus": "not_started"
+    },
+    {
+      "id": "STUDY-4",
+      "title": "Métricas com Prometheus e visualização no Grafana",
+      "technology": "OpenTelemetry",
+      "category": "observability",
+      "priority": "medium",
+      "rationale": "T-005 exige Prometheus e Grafana além de Jaeger. Traces e métricas são conceitos distintos no OTel — o dev precisa entender o PrometheusExporter e scrape config antes de implementar.",
+      "timeline": {
+        "startWeek": 4,
+        "endWeek": 4,
+        "durationDays": 5,
+        "effort": "intensive"
+      },
+      "objectives": [
+        "Configurar MeterProvider com PrometheusExporter no SDK OTel",
+        "Entender o formato de exposição de métricas do Prometheus",
+        "Configurar scrape_config no prometheus.yml apontando para a aplicação",
+        "Criar dashboard básico no Grafana com datasource Prometheus via provisioning"
+      ],
+      "references": [
+        {
+          "title": "OpenTelemetry — Exporters (Node.js)",
+          "url": "https://opentelemetry.io/docs/languages/js/exporters/",
+          "type": "doc",
+          "estimatedTime": "30min",
+          "note": "Documentação do exporter Prometheus para o SDK JS"
+        },
+        {
+          "title": "Prometheus — Getting Started",
+          "url": "https://prometheus.io/docs/prometheus/latest/getting_started/",
+          "type": "doc",
+          "estimatedTime": "45min",
+          "note": "Explica scrape_config e como o Prometheus coleta métricas"
+        },
+        {
+          "title": "Grafana — Provision dashboards and data sources",
+          "url": "https://grafana.com/docs/grafana/latest/administration/provisioning/",
+          "type": "doc",
+          "estimatedTime": "30min",
+          "note": "Como provisionar datasource e dashboard via arquivos — evita configuração manual"
+        }
+      ],
+      "milestones": [
+        {
+          "id": "MS-8",
+          "description": "Subir Prometheus e Grafana via Docker Compose, configurar scrape para aplicação local e ver ao menos uma métrica no Grafana",
+          "type": "implementation"
+        },
+        {
+          "id": "MS-9",
+          "description": "Provisionar datasource Prometheus no Grafana via arquivo YAML — confirmar que funciona sem configuração manual após docker compose up",
+          "type": "exercise"
+        }
+      ],
+      "completionStatus": "not_started"
+    }
+  ],
 
-  "weeklyOverview": [],
+  "weeklyOverview": [
+    {
+      "week": 1,
+      "topicIds": ["STUDY-1", "STUDY-2"],
+      "focus": "Fechar o gap de validação de DTOs e iniciar fundamentos de OTel com traces e spans"
+    },
+    {
+      "week": 2,
+      "topicIds": ["STUDY-2"],
+      "focus": "Consolidar OTel: SDK completo, Jaeger local e propagação de contexto"
+    },
+    {
+      "week": 3,
+      "topicIds": ["STUDY-3"],
+      "focus": "Redis na prática: cache manual com NestJS, serialização Mongoose e invalidação"
+    },
+    {
+      "week": 4,
+      "topicIds": ["STUDY-4"],
+      "focus": "Prometheus e Grafana: métricas, scrape config e dashboard provisionado"
+    }
+  ],
 
-  "planStatus": "draft"
+  "planStatus": "active"
 }

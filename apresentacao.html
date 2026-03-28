@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trailblazer Onboarding — Apresentação</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:       #FA5A50;
+    --primary-light: #FA8982;
+    --primary-dark:  #D94A41;
+    --primary-xdark: #A63832;
+    --navy:          #000050;
+    --navy-mid:      #14142B;
+    --navy-light:    #1E1E38;
+    --navy-border:   #2A2A4A;
+    --blue-light:    #B4DCFA;
+    --text:          #F0F0FF;
+    --text-muted:    #B4DCFA;
+    --purple:        #802655;
+    --purple-light:  #994D74;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--navy);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── DECK ── */
+  .deck { width: 100%; height: 100%; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 64px 80px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .slide.active { display: flex; opacity: 1; }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px;
+    background: rgba(20,20,43,0.85);
+    border: 1px solid var(--navy-border);
+    border-radius: 99px;
+    padding: 10px 20px;
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .nav button {
+    background: none; border: none; cursor: pointer;
+    color: var(--primary); font-size: 18px; line-height: 1;
+    padding: 2px 8px; border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .nav button:hover { background: rgba(250,90,80,0.15); }
+  .nav button:disabled { color: var(--navy-border); cursor: default; background: none; }
+  #slide-counter { min-width: 52px; text-align: center; }
+
+  /* ── COMPONENTS ── */
+  .label {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 99px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .label-red   { background: rgba(250,90,80,0.18); color: var(--primary); }
+  .label-blue  { background: rgba(180,220,250,0.15); color: var(--blue-light); }
+  .label-purple{ background: rgba(128,38,85,0.3); color: #C785CC; }
+  .label-green { background: rgba(80,200,120,0.15); color: #7DEFA1; }
+
+  .card {
+    background: var(--navy-light);
+    border: 1px solid var(--navy-border);
+    border-radius: 14px;
+    padding: 20px 24px;
+  }
+
+  .slide-title {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--primary);
+    margin-bottom: 12px;
+  }
+  .slide-heading {
+    font-size: 38px; font-weight: 300; line-height: 1.18;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .slide-heading strong { font-weight: 600; color: var(--primary); }
+  .slide-sub {
+    font-size: 16px; color: var(--text-muted); line-height: 1.6;
+    max-width: 680px; margin-bottom: 40px;
+  }
+
+  /* ── SLIDE-SPECIFIC ── */
+
+  /* 1 — Cover */
+  #s1 {
+    justify-content: center;
+    background: radial-gradient(ellipse at 30% 40%, rgba(250,90,80,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 70%, rgba(180,220,250,0.05) 0%, transparent 50%),
+                var(--navy);
+  }
+  #s1 .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
+  #s1 .logo-mark {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: white; letter-spacing: -1px;
+  }
+  #s1 .logo-text { font-size: 18px; font-weight: 600; }
+  #s1 .logo-text span { color: var(--text-muted); font-weight: 400; font-size: 14px; display: block; }
+  #s1 h1 { font-size: 56px; font-weight: 300; line-height: 1.1; margin-bottom: 20px; }
+  #s1 h1 strong { font-weight: 700; color: var(--primary); display: block; }
+  #s1 p { font-size: 18px; color: var(--text-muted); max-width: 600px; line-height: 1.6; margin-bottom: 48px; }
+  #s1 .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* 2 — Problema */
+  #s2 .problems { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 8px; }
+  #s2 .problem-card {
+    background: var(--navy-light); border: 1px solid var(--navy-border);
+    border-radius: 14px; padding: 24px;
+  }
+  #s2 .problem-card .icon { font-size: 28px; margin-bottom: 12px; }
+  #s2 .problem-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  #s2 .problem-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  #s2 .vs {
+    margin-top: 28px; padding: 16px 24px;
+    background: rgba(250,90,80,0.08); border: 1px solid rgba(250,90,80,0.2);
+    border-radius: 10px; font-size: 14px; color: var(--text-muted);
+    display: flex; align-items: center; gap: 12px;
+  }
+  #s2 .vs strong { color: var(--primary); }
+
+  /* 3 — Solução */
+  #s3 .flow {
+    display: flex; align-items: center; gap: 0;
+    margin-top: 12px; margin-bottom: 36px;
+    overflow-x: auto; padding-bottom: 4px;
+  }
+  #s3 .flow-node {
+    background: var(--navy-light); border: 1px solid var(--navy-border);
+    border-radius: 12px; padding: 16px 20px;
+    text-align: center; min-width: 130px; flex-shrink: 0;
+  }
+  #s3 .flow-node .fn-icon { font-size: 24px; margin-bottom: 6px; }
+  #s3 .flow-node .fn-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  #s3 .flow-node .fn-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  #s3 .flow-arrow {
+    color: var(--primary); font-size: 20px; padding: 0 8px; flex-shrink: 0;
+  }
+  #s3 .flow-node.highlight {
+    border-color: var(--primary); background: rgba(250,90,80,0.1);
+  }
+  #s3 .flow-node.highlight .fn-label { color: var(--primary); }
+  #s3 .callouts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  #s3 .callout {
+    background: var(--navy-light); border: 1px solid var(--navy-border);
+    border-radius: 10px; padding: 16px 18px;
+    font-size: 13px; color: var(--text-muted); line-height: 1.5;
+  }
+  #s3 .callout strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 14px; }
+
+  /* 4 — Task */
+  #s4 .task-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  #s4 .task-md {
+    background: var(--navy-mid); border: 1px solid var(--navy-border);
+    border-radius: 14px; padding: 24px; font-size: 13px; line-height: 1.7;
+    font-family: monospace;
+  }
+  #s4 .task-md .fm { color: #7DEFA1; }
+  #s4 .task-md .sec { color: var(--primary); font-weight: 700; margin-top: 10px; }
+  #s4 .task-md .txt { color: var(--text-muted); }
+  #s4 .task-md .dod { color: var(--blue-light); }
+  #s4 .principles { display: flex; flex-direction: column; gap: 14px; justify-content: center; }
+  #s4 .principle {
+    background: var(--navy-light); border: 1px solid var(--navy-border);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  #s4 .principle .p-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  #s4 .principle h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  #s4 .principle p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* 5 — Rubrica */
+  #s5 .rubric-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  #s5 .levels { display: flex; flex-direction: column; gap: 8px; }
+  #s5 .level {
+    border-radius: 10px; padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid transparent;
+  }
+  #s5 .level .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  #s5 .level .lv-name { font-size: 13px; font-weight: 600; min-width: 110px; }
+  #s5 .level .lv-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+  #s5 .level-1 { background: rgba(105,0,55,0.25); border-color: rgba(105,0,55,0.4); }
+  #s5 .level-1 .dot { background: #690037; } #s5 .level-1 .lv-name { color: #e05590; }
+  #s5 .level-2 { background: rgba(128,38,85,0.2); border-color: rgba(128,38,85,0.35); }
+  #s5 .level-2 .dot { background: #802655; } #s5 .level-2 .lv-name { color: #C785CC; }
+  #s5 .level-3 { background: rgba(250,137,130,0.15); border-color: rgba(250,137,130,0.3); }
+  #s5 .level-3 .dot { background: #FA8982; } #s5 .level-3 .lv-name { color: #FA8982; }
+  #s5 .level-4 { background: rgba(250,90,80,0.15); border-color: rgba(250,90,80,0.35); }
+  #s5 .level-4 .dot { background: #FA5A50; } #s5 .level-4 .lv-name { color: #FA5A50; }
+  #s5 .level-5 { background: rgba(217,74,65,0.2); border-color: rgba(217,74,65,0.4); }
+  #s5 .level-5 .dot { background: #D94A41; } #s5 .level-5 .lv-name { color: #ff9a95; }
+  #s5 .criteria-types { display: flex; flex-direction: column; gap: 14px; }
+  #s5 .ct { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 12px; padding: 18px 20px; }
+  #s5 .ct h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  #s5 .ct p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  #s5 .ct .ct-tag { display: inline-block; margin-bottom: 8px; }
+
+  /* 6 — Evaluator */
+  #s6 .eval-layout { display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px; }
+  #s6 .inputs, #s6 .outputs { display: flex; flex-direction: column; gap: 10px; }
+  #s6 .io-item {
+    background: var(--navy-light); border: 1px solid var(--navy-border);
+    border-radius: 10px; padding: 12px 16px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  #s6 .io-item .io-icon { font-size: 18px; flex-shrink: 0; }
+  #s6 .io-item h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  #s6 .io-item p { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+  #s6 .arrow-col {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: var(--primary);
+  }
+  #s6 .steps { margin-top: 20px; display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+  #s6 .step {
+    background: var(--navy-light); border: 1px solid var(--navy-border);
+    border-radius: 8px; padding: 10px 8px; text-align: center;
+    font-size: 11px; color: var(--text-muted);
+  }
+  #s6 .step strong { display: block; color: var(--primary); font-size: 12px; margin-bottom: 4px; }
+
+  /* 7 — Profile */
+  #s7 .profile-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; }
+  #s7 .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #s7 .skill-row {
+    background: var(--navy-light); border: 1px solid var(--navy-border);
+    border-radius: 8px; padding: 10px 14px;
+  }
+  #s7 .skill-row .sk-name { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  #s7 .skill-row .sk-bar { height: 5px; background: var(--navy-border); border-radius: 99px; overflow: hidden; }
+  #s7 .skill-row .sk-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 1s ease; }
+  #s7 .skill-row .sk-score { font-size: 12px; font-weight: 600; color: var(--text); float: right; margin-top: -18px; }
+  #s7 .profile-right { display: flex; flex-direction: column; gap: 12px; }
+  #s7 .profile-section { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 12px; padding: 16px 18px; }
+  #s7 .profile-section h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
+  #s7 .pattern {
+    font-size: 12px; padding: 6px 10px; border-radius: 6px; margin-bottom: 6px; line-height: 1.4;
+  }
+  #s7 .pattern-neg { background: rgba(250,90,80,0.1); color: var(--primary-light); border-left: 3px solid var(--primary); }
+  #s7 .pattern-pos { background: rgba(125,239,161,0.08); color: #7DEFA1; border-left: 3px solid #7DEFA1; }
+  #s7 .history-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 0; border-bottom: 1px solid var(--navy-border); font-size: 12px;
+  }
+  #s7 .history-row:last-child { border-bottom: none; }
+  #s7 .history-row .tid { color: var(--text-muted); }
+  #s7 .lv-sufficient { color: #FA8982; }
+  #s7 .lv-very_good { color: #FA5A50; }
+
+  /* 8 — Dashboard screenshot */
+  #s8 .screen-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
+  #s8 .screen-card { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 14px; overflow: hidden; }
+  #s8 .screen-card img { width: 100%; display: block; }
+  #s8 .screen-card .screen-label { padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  #s8 .screen-highlight { border-color: var(--primary); }
+  #s8 .screen-highlight .screen-label { color: var(--primary); }
+
+  /* 9 — Valor */
+  #s9 .value-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  #s9 .persona { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 14px; padding: 28px; }
+  #s9 .persona .p-role { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 10px; }
+  #s9 .persona h3 { font-size: 20px; font-weight: 600; margin-bottom: 16px; line-height: 1.3; }
+  #s9 .persona ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  #s9 .persona ul li { font-size: 13px; color: var(--text-muted); display: flex; gap: 10px; line-height: 1.5; }
+  #s9 .persona ul li::before { content: '→'; color: var(--primary); flex-shrink: 0; }
+  #s9 .persona-dev { border-top: 3px solid var(--primary); }
+  #s9 .persona-mgr { border-top: 3px solid var(--blue-light); }
+  #s9 .persona-mgr h3 { color: var(--blue-light); }
+
+  /* 10 — Next */
+  #s10 .next-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 8px; }
+  #s10 .next-item { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 12px; padding: 20px 22px; }
+  #s10 .next-item .phase { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
+  #s10 .next-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  #s10 .next-item ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  #s10 .next-item ul li { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; line-height: 1.5; }
+  #s10 .next-item ul li::before { content: '·'; color: var(--primary); font-size: 16px; line-height: 1.2; }
+  #s10 .summary {
+    margin-top: 28px; padding: 18px 24px;
+    background: rgba(250,90,80,0.07); border: 1px solid rgba(250,90,80,0.2);
+    border-radius: 10px; font-size: 14px; color: var(--text-muted); line-height: 1.6;
+    text-align: center;
+  }
+  #s10 .summary strong { color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- ══════════ SLIDE 1 — COVER ══════════ -->
+  <div class="slide active" id="s1">
+    <div class="logo">
+      <div class="logo-mark">CI&T</div>
+      <div class="logo-text">Trailblazer <span>Onboarding Platform</span></div>
+    </div>
+    <h1>Onboarding técnico<br><strong>orientado a evidências.</strong></h1>
+    <p>Tasks reais da stack da empresa, avaliação estruturada por IA, perfil evolutivo e plano de estudos personalizado — tudo integrado num dashboard local.</p>
+    <div class="tags">
+      <span class="label label-red">NestJS · MongoDB · Redis · OTel</span>
+      <span class="label label-blue">Avaliação por IA</span>
+      <span class="label label-purple">Feedback contínuo</span>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 2 — PROBLEMA ══════════ -->
+  <div class="slide" id="s2">
+    <div class="slide-title">Contexto</div>
+    <div class="slide-heading">O onboarding tradicional <strong>não escala.</strong></div>
+    <div class="slide-sub">Três problemas recorrentes que custam tempo do time e deixam o novo dev sem direção clara.</div>
+
+    <div class="problems">
+      <div class="problem-card">
+        <div class="icon">📄</div>
+        <h3>Onboarding passivo</h3>
+        <p>O dev lê documentação, assiste demos e segue tutoriais. Aprende o que está escrito, não o que é cobrado na prática diária do time.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🔇</div>
+        <h3>Feedback inconsistente</h3>
+        <p>Cada tech lead avalia de forma diferente. Não há critérios claros, nem histórico de evolução. O dev não sabe onde está nem o que falta.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🕳️</div>
+        <h3>Gaps invisíveis</h3>
+        <p>Observabilidade, cache, performance de banco — os gaps só aparecem em produção. Não há mecanismo para detectá-los antes.</p>
+      </div>
+    </div>
+
+    <div class="vs">
+      <span>💡</span>
+      <span>A pergunta que motivou o projeto: <strong>como garantir que cada dev que entra no time domine o stack antes de tocar em produção — com evidências concretas disso?</strong></span>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 3 — SOLUÇÃO ══════════ -->
+  <div class="slide" id="s3">
+    <div class="slide-title">A Solução</div>
+    <div class="slide-heading">Um ciclo fechado de<br><strong>implementação e aprendizado.</strong></div>
+
+    <div class="flow">
+      <div class="flow-node">
+        <div class="fn-icon">📋</div>
+        <div class="fn-label">Task</div>
+        <div class="fn-sub">T-NNN.md</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node highlight">
+        <div class="fn-icon">💻</div>
+        <div class="fn-label">Dev implementa</div>
+        <div class="fn-sub">no repositório</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node highlight">
+        <div class="fn-icon">🤖</div>
+        <div class="fn-label">IA avalia</div>
+        <div class="fn-sub">diff + testes</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="fn-icon">👤</div>
+        <div class="fn-label">Profile</div>
+        <div class="fn-sub">atualizado</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="fn-icon">📚</div>
+        <div class="fn-label">Plano</div>
+        <div class="fn-sub">de estudos</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="fn-icon">📊</div>
+        <div class="fn-label">Dashboard</div>
+        <div class="fn-sub">visível para todos</div>
+      </div>
+    </div>
+
+    <div class="callouts">
+      <div class="callout">
+        <strong>Tasks são especificações reais</strong>
+        Contexto, escopo, dicas, fora do escopo e Definition of Done — igual a uma task de produto. O dev trata como trabalho, não como exercício.
+      </div>
+      <div class="callout">
+        <strong>A IA avalia como um tech lead</strong>
+        Critérios explícitos + critérios ocultos. O nível final vai de <em>insufficient</em> a <em>exceptional</em> com feedback personalizado pelo histórico do dev.
+      </div>
+      <div class="callout">
+        <strong>O perfil é acumulativo</strong>
+        Skills, padrões comportamentais, histórico de avaliações — tudo persiste. O plano de estudos é gerado automaticamente quando há gap.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 4 — TASK ══════════ -->
+  <div class="slide" id="s4">
+    <div class="slide-title">Componente 1</div>
+    <div class="slide-heading">A Task — <strong>especificação de produto,</strong><br>não tutorial.</div>
+
+    <div class="task-layout">
+      <div class="task-md">
+        <div class="fm">---</div>
+        <div class="fm">id: T-004 &nbsp; type: FEATURE &nbsp; difficulty: medium</div>
+        <div class="fm">services: [core] &nbsp; tags: [redis, cache]</div>
+        <div class="fm">---</div>
+        <div class="sec">## Contexto</div>
+        <div class="txt">GET /products é chamado com alta frequência. Cada requisição resulta em query ao MongoDB. Redis está no compose mas não é utilizado.</div>
+        <div class="sec">## Escopo</div>
+        <div class="txt">- Cache com TTL 60s em GET /products<br>- Cache com TTL 120s em GET /products/:id<br>- Invalidar cache da lista ao criar produto</div>
+        <div class="sec">## Fora do escopo</div>
+        <div class="txt">- Não aplicar cache em orders ou customers<br>- Não implementar Redis como fila ou pub/sub</div>
+        <div class="sec">## Definition of done</div>
+        <div class="dod">- [ ] GET /products cacheado no 2º acesso<br>- [ ] POST /products invalida cache da lista<br>- [ ] Conexão via REDIS_HOST e REDIS_PORT<br>- [ ] Testes: hit, miss, invalidação</div>
+        <div class="sec">## Domain</div>
+        <div class="txt">core/src/products/products.service.ts</div>
+      </div>
+
+      <div class="principles">
+        <div class="principle">
+          <div class="p-icon">🎯</div>
+          <div>
+            <h4>O QUE, não o COMO</h4>
+            <p>O escopo descreve comportamento verificável. A solução técnica é decisão do dev — assim como em produção.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="p-icon">🚧</div>
+          <div>
+            <h4>Fora do escopo previne gold-plating</h4>
+            <p>Delimitar o que não deve ser feito é tão importante quanto o que deve. Avaliadores checam isso explicitamente.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="p-icon">✅</div>
+          <div>
+            <h4>DoD é binário e verificável</h4>
+            <p>Cada critério é uma pergunta com resposta sim/não. A IA busca evidência no diff — não intenção.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="p-icon">📍</div>
+          <div>
+            <h4>Domain como ownership</h4>
+            <p>Os caminhos em Domain são "propriedade" da task. Outras tasks não tocam esses arquivos sem justificativa explícita.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 5 — RUBRICA ══════════ -->
+  <div class="slide" id="s5">
+    <div class="slide-title">Componente 2</div>
+    <div class="slide-heading">A Rubrica — <strong>critérios explícitos</strong><br>e critérios ocultos.</div>
+
+    <div class="rubric-layout">
+      <div>
+        <div style="margin-bottom:14px; font-size:13px; color:var(--text-muted);">5 níveis ordenados. O primeiro que for verdadeiro vence.</div>
+        <div class="levels">
+          <div class="level level-1">
+            <div class="dot"></div>
+            <div class="lv-name">Insufficient</div>
+            <div class="lv-desc">Um ou mais critérios do DoD não foram atendidos</div>
+          </div>
+          <div class="level level-2">
+            <div class="dot"></div>
+            <div class="lv-name">Partial</div>
+            <div class="lv-desc">DoD no caminho certo mas com gaps em testes ou casos limite</div>
+          </div>
+          <div class="level level-3">
+            <div class="dot"></div>
+            <div class="lv-name">Sufficient</div>
+            <div class="lv-desc">Todos os DoD atendidos, nenhum critério oculto atingido</div>
+          </div>
+          <div class="level level-4">
+            <div class="dot"></div>
+            <div class="lv-name">Very Good</div>
+            <div class="lv-desc">DoD completo + ao menos um critério oculto atingido</div>
+          </div>
+          <div class="level level-5">
+            <div class="dot"></div>
+            <div class="lv-name">Exceptional</div>
+            <div class="lv-desc">DoD + todos os ocultos + pattern file + functional check</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="criteria-types">
+        <div class="ct">
+          <span class="label label-blue ct-tag">dod_criteria</span>
+          <h4>Critérios explícitos</h4>
+          <p>Mapeados diretamente ao DoD da task. Cada item tem <code>how_to_verify</code> (onde buscar no diff) e três níveis de evidência: insufficient, partial, sufficient.</p>
+        </div>
+        <div class="ct">
+          <span class="label label-purple ct-tag">hidden_criteria</span>
+          <h4>Critérios ocultos</h4>
+          <p>O dev nunca os vê. São os pontos que <em>"um dev atento perceberia"</em> — serialização Mongoose, timeout no hot path, ordem de inicialização do SDK. O que diferencia sufficient de exceptional.</p>
+        </div>
+        <div class="ct">
+          <span class="label label-green ct-tag">tiebreaker</span>
+          <h4>Peso dos critérios</h4>
+          <p>Cada hidden tem peso <code>high | medium | low</code>. Em empate entre níveis adjacentes, critérios de peso maior decidem — garante consistência entre avaliações.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 6 — EVALUATOR ══════════ -->
+  <div class="slide" id="s6">
+    <div class="slide-title">Componente 3</div>
+    <div class="slide-heading">O Evaluator — <strong>IA como tech lead</strong><br>estruturado por prompt contratual.</div>
+
+    <div class="eval-layout">
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Entradas</div>
+        <div class="inputs">
+          <div class="io-item"><div class="io-icon">📝</div><div><h4>Git diff</h4><p>Todo o código escrito pelo dev na branch da task</p></div></div>
+          <div class="io-item"><div class="io-icon">🧪</div><div><h4>Resultado dos testes</h4><p>Output do jest — passou, falhou, cobertura</p></div></div>
+          <div class="io-item"><div class="io-icon">📋</div><div><h4>Rubrica (T-NNN.eval.json)</h4><p>dod_criteria, hidden_criteria, regras de nível</p></div></div>
+          <div class="io-item"><div class="io-icon">👤</div><div><h4>Profile do dev</h4><p>Histórico, padrões, skills — personaliza o feedback</p></div></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Saídas (JSON estruturado)</div>
+        <div class="outputs">
+          <div class="io-item"><div class="io-icon">🏆</div><div><h4>finalLevel + feedback</h4><p>Nível com evidência + parágrafo personalizado pelo histórico</p></div></div>
+          <div class="io-item"><div class="io-icon">📈</div><div><h4>skillDelta</h4><p>-2 a +2 na tecnologia principal. CLI aplica em person.json</p></div></div>
+          <div class="io-item"><div class="io-icon">🔍</div><div><h4>Padrões comportamentais</h4><p>Novos, reforçados ou resolvidos. Acumulam no profile</p></div></div>
+          <div class="io-item"><div class="io-icon">📚</div><div><h4>studyPlanUpdate</h4><p>Plano gerado quando há gap — tópicos, refs, milestones</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><strong>1</strong>Avalia dod_criteria</div>
+      <div class="step"><strong>2</strong>Avalia hidden_criteria</div>
+      <div class="step"><strong>3</strong>Pattern file + func check</div>
+      <div class="step"><strong>4</strong>Determina nível final</div>
+      <div class="step"><strong>5</strong>Calcula skillDelta</div>
+      <div class="step"><strong>6</strong>Gera plano de estudos</div>
+      <div class="step"><strong>7</strong>Compõe feedback</div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 7 — PROFILE ══════════ -->
+  <div class="slide" id="s7">
+    <div class="slide-title">Componente 4</div>
+    <div class="slide-heading">O Profile — <strong>memória acumulativa</strong><br>de cada dev no onboarding.</div>
+
+    <div class="profile-layout">
+      <div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Skills por tecnologia — alimenta o radar chart do dashboard</div>
+        <div class="skills-grid">
+          <div class="skill-row">
+            <div class="sk-name">JavaScript</div>
+            <div class="sk-score">8</div>
+            <div class="sk-bar"><div class="sk-fill" style="width:80%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="sk-name">Node.js</div>
+            <div class="sk-score">7</div>
+            <div class="sk-bar"><div class="sk-fill" style="width:70%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="sk-name">NestJS</div>
+            <div class="sk-score">5</div>
+            <div class="sk-bar"><div class="sk-fill" style="width:50%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="sk-name">MongoDB</div>
+            <div class="sk-score">6</div>
+            <div class="sk-bar"><div class="sk-fill" style="width:60%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="sk-name">Redis</div>
+            <div class="sk-score">3</div>
+            <div class="sk-bar"><div class="sk-fill" style="width:30%" ></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="sk-name">OpenTelemetry</div>
+            <div class="sk-score">2</div>
+            <div class="sk-bar"><div class="sk-fill" style="width:20%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="sk-name">Honeycomb</div>
+            <div class="sk-score">1</div>
+            <div class="sk-bar"><div class="sk-fill" style="width:10%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="sk-name">Splunk</div>
+            <div class="sk-score">2</div>
+            <div class="sk-bar"><div class="sk-fill" style="width:20%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-right">
+        <div class="profile-section">
+          <h4>Padrões comportamentais</h4>
+          <div class="pattern pattern-neg">❌ Implementa feature sem DTO de validação — recorrente em T-001 e T-002</div>
+          <div class="pattern pattern-pos">✓ Testes unitários bem estruturados com casos limite — consistente</div>
+          <div class="pattern pattern-neg" style="opacity:0.5">❌ Lógica no controller em vez do service — <em>resolvido em T-001</em></div>
+        </div>
+        <div class="profile-section">
+          <h4>Histórico de avaliações</h4>
+          <div class="history-row"><span class="tid">T-001</span><span>Endpoint no módulo existente</span><span class="lv-sufficient">sufficient</span></div>
+          <div class="history-row"><span class="tid">T-002</span><span>Novo módulo de banners</span><span class="lv-very_good">very_good</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 8 — DASHBOARD ══════════ -->
+  <div class="slide" id="s8">
+    <div class="slide-title">Componente 5</div>
+    <div class="slide-heading">O Dashboard — <strong>visibilidade real</strong><br>para o dev e para o time.</div>
+
+    <div class="screen-layout">
+      <div class="screen-card screen-highlight">
+        <img src="Captura de tela 2026-03-28 134034.png" alt="Tasks" />
+        <div class="screen-label">Tasks — status, dificuldade, tipo, filtros</div>
+      </div>
+      <div class="screen-card screen-highlight">
+        <img src="Captura de tela 2026-03-28 134023.png" alt="Dashboard" />
+        <div class="screen-label">Dashboard — radar de skills, progresso, qualidade, erros</div>
+      </div>
+      <div class="screen-card">
+        <img src="Captura de tela 2026-03-28 134002.png" alt="Study Plan" />
+        <div class="screen-label">Study Plan — plano gerado automaticamente pela IA</div>
+      </div>
+      <div class="screen-card">
+        <img src="Captura de tela 2026-03-28 134015.png" alt="Study Detail" />
+        <div class="screen-label">Tópico expandido — objetivos, referências, milestones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 9 — VALOR ══════════ -->
+  <div class="slide" id="s9">
+    <div class="slide-title">Proposta de Valor</div>
+    <div class="slide-heading">O que isso resolve<br><strong>na prática.</strong></div>
+
+    <div class="value-grid">
+      <div class="persona persona-dev">
+        <div class="p-role">Para o desenvolvedor</div>
+        <h3 style="color:var(--primary)">Clareza e direção desde o dia 1</h3>
+        <ul>
+          <li>Sabe exatamente o que é esperado — o DoD é binário, sem ambiguidade</li>
+          <li>Recebe feedback concreto com base em evidência no código, não em opinião</li>
+          <li>Enxerga seus gaps por tecnologia em um radar atualizado a cada task</li>
+          <li>Recebe um plano de estudos personalizado quando o nível está abaixo do esperado</li>
+          <li>Aprende os padrões de produção fazendo, não lendo</li>
+        </ul>
+      </div>
+      <div class="persona persona-mgr">
+        <div class="p-role">Para o gerente e o time</div>
+        <h3>Visibilidade sem overhead</h3>
+        <ul>
+          <li>Dashboard mostra progresso técnico real — sem reunião de status</li>
+          <li>Critérios de avaliação são consistentes entre todos os devs e avaliações</li>
+          <li>Padrões comportamentais ficam documentados — fácil identificar o que reforçar</li>
+          <li>Gaps de observabilidade e performance aparecem antes de chegar em produção</li>
+          <li>Tasks calibradas por dificuldade garantem rampa de aprendizado estruturada</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SLIDE 10 — PRÓXIMOS PASSOS ══════════ -->
+  <div class="slide" id="s10">
+    <div class="slide-title">Roadmap</div>
+    <div class="slide-heading">O que já existe e<br><strong>o que vem a seguir.</strong></div>
+
+    <div class="next-grid">
+      <div class="next-item" style="border-top:3px solid #7DEFA1">
+        <div class="phase">✓ Pronto</div>
+        <h4>Base do sistema</h4>
+        <ul>
+          <li>6 tasks calibradas (easy → hard)</li>
+          <li>6 rubricas com hidden criteria</li>
+          <li>Prompt contratual do evaluator</li>
+          <li>Profile e plano de estudos</li>
+          <li>Dashboard local (React + Express)</li>
+          <li>Projeto backend base (BFF + Core)</li>
+        </ul>
+      </div>
+      <div class="next-item" style="border-top:3px solid var(--primary)">
+        <div class="phase">→ Próximo</div>
+        <h4>CLI de avaliação</h4>
+        <ul>
+          <li>Comando <code>evaluate T-NNN</code></li>
+          <li>Coleta diff e resultado de testes</li>
+          <li>Chama API do Claude com o prompt</li>
+          <li>Atualiza person.json automaticamente</li>
+          <li>Arquiva relatório em evaluate/reports/</li>
+        </ul>
+      </div>
+      <div class="next-item" style="border-top:3px solid var(--blue-light)">
+        <div class="phase">→ Futuro</div>
+        <h4>Qualidade e escala</h4>
+        <ul>
+          <li>Pattern files por tecnologia</li>
+          <li>Functional checks automatizados</li>
+          <li>Tasks de BUG e REFACTOR</li>
+          <li>Multi-dev — um dashboard por squad</li>
+          <li>Exportação de relatório para o gerente</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="summary">
+      O sistema está funcional para o fluxo completo de task → avaliação manual → profile → dashboard.<br>
+      O próximo passo crítico é o <strong>CLI de avaliação</strong> — que fecha o ciclo sem intervenção humana.
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- ── NAV ── -->
+<div class="nav">
+  <button id="prev" onclick="go(-1)" disabled>←</button>
+  <span id="slide-counter">1 / 10</span>
+  <button id="next" onclick="go(1)">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide')
+  let cur = 0
+
+  function go(dir) {
+    slides[cur].classList.remove('active')
+    cur = Math.max(0, Math.min(slides.length - 1, cur + dir))
+    slides[cur].classList.add('active')
+    document.getElementById('slide-counter').textContent = `${cur + 1} / ${slides.length}`
+    document.getElementById('prev').disabled = cur === 0
+    document.getElementById('next').disabled = cur === slides.length - 1
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(1)
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') go(-1)
+  })
+</script>
+</body>
+</html>
