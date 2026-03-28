@@ -1,0 +1,160 @@
+{
+  "id": "T-005",
+  "name": "Observabilidade com OpenTelemetry, Jaeger, Prometheus e Grafana",
+  "type": "FEATURE",
+  "difficulty": "hard",
+
+  "references": {
+    "pattern_file": null,
+    "functional_check": {
+      "description": "Verifica se docker compose up sobe todos os serviços incluindo Jaeger, Prometheus e Grafana, e se GET /metrics em BFF e Core retornam métricas no formato Prometheus",
+      "command": "not_configured"
+    }
+  },
+
+  "dod_criteria": [
+    {
+      "id": "DOD-1",
+      "maps_to_dod": "Traces aparecem no Jaeger UI para requisições ao BFF e ao Core",
+      "how_to_verify": "No diff, verificar se instrumentation.ts foi criado em ambos os serviços com NodeSDK configurado, exporter OTLP apontando para Jaeger, e se é importado antes do bootstrap do NestJS. Verificar se auto-instrumentações de HTTP estão registradas.",
+      "evaluation": {
+        "insufficient": "SDK não configurado em algum dos serviços, ou exporter não aponta para Jaeger, ou instrumentation.ts importado após o bootstrap",
+        "partial": "SDK configurado mas sem auto-instrumentação de HTTP, ou apenas um dos dois serviços instrumentado",
+        "sufficient": "Ambos os serviços com instrumentation.ts correto, SDK inicializado antes do bootstrap, auto-instrumentação HTTP ativa"
+      }
+    },
+    {
+      "id": "DOD-2",
+      "maps_to_dod": "Um trace de GET /products no BFF mostra o span filho da chamada ao Core",
+      "how_to_verify": "Verificar se a propagação de contexto está configurada (W3C TraceContext propagator) para que o span do BFF seja pai do span do Core na mesma requisição.",
+      "evaluation": {
+        "insufficient": "BFF e Core geram traces independentes sem relação pai-filho",
+        "partial": "Propagação configurada mas apenas em um sentido, ou traces relacionados mas sem hierarquia correta",
+        "sufficient": "Trace de GET /products no BFF contém span filho do Core com hierarquia visível no Jaeger"
+      }
+    },
+    {
+      "id": "DOD-3",
+      "maps_to_dod": "Métricas de latência e contagem de requisições disponíveis em GET /metrics em ambos os serviços",
+      "how_to_verify": "Verificar se PrometheusExporter está configurado no SDK de ambos os serviços. Checar se /metrics é exposto (porta 9464 ou rota dedicada) e retorna métricas no formato texto Prometheus.",
+      "evaluation": {
+        "insufficient": "Endpoint /metrics ausente em algum dos serviços",
+        "partial": "Endpoint existe mas não contém métricas de latência HTTP (ex: apenas process metrics)",
+        "sufficient": "Ambos os serviços expõem /metrics com métricas de latência e contagem de requisições HTTP"
+      }
+    },
+    {
+      "id": "DOD-4",
+      "maps_to_dod": "O Prometheus coleta as métricas dos dois serviços",
+      "how_to_verify": "Verificar se o arquivo prometheus.yml foi criado com scrape_configs apontando para BFF e Core. Verificar se Prometheus está no docker-compose.yml.",
+      "evaluation": {
+        "insufficient": "Prometheus não adicionado ao docker-compose ou sem scrape_config para os serviços",
+        "partial": "Prometheus no compose mas scrape_config aponta para apenas um serviço",
+        "sufficient": "prometheus.yml com scrape_config para BFF e Core, Prometheus no docker-compose"
+      }
+    },
+    {
+      "id": "DOD-5",
+      "maps_to_dod": "O Grafana exibe ao menos um gráfico de latência e um de throughput com dados reais",
+      "how_to_verify": "Verificar se Grafana está no docker-compose com provisioning de datasource Prometheus. Verificar se há arquivo de dashboard (JSON) ou provisioning de dashboard com os dois painéis.",
+      "evaluation": {
+        "insufficient": "Grafana não adicionado ao compose ou sem datasource Prometheus configurado",
+        "partial": "Grafana no compose com datasource, mas sem dashboard provisionado (dev confia em configuração manual)",
+        "sufficient": "Grafana com datasource Prometheus provisionado via arquivo e ao menos um dashboard com gráfico de latência e throughput"
+      }
+    },
+    {
+      "id": "DOD-6",
+      "maps_to_dod": "Logs de POST /orders contêm trace_id e span_id",
+      "how_to_verify": "Verificar se OrdersService.create() emite log estruturado incluindo trace_id e span_id extraídos do span ativo via api.trace.getActiveSpan().",
+      "evaluation": {
+        "insufficient": "Nenhum log em create(), ou logs sem trace_id e span_id",
+        "partial": "Log emitido mas trace_id ou span_id ausente, ou valores são undefined",
+        "sufficient": "Log estruturado com trace_id e span_id extraídos corretamente do contexto OTel ativo"
+      }
+    },
+    {
+      "id": "DOD-7",
+      "maps_to_dod": "Jaeger, Prometheus e Grafana estão no docker-compose.yml e sobem com docker compose up",
+      "how_to_verify": "Verificar se os três serviços estão no docker-compose.yml com imagens corretas e sem erros de configuração que impediriam o start.",
+      "evaluation": {
+        "insufficient": "Um ou mais dos três serviços ausentes do docker-compose",
+        "partial": "Todos presentes mas com configuração incorreta (ex: porta errada, volume não mapeado para Grafana)",
+        "sufficient": "Todos os três serviços no compose com configuração funcional"
+      }
+    }
+  ],
+
+  "hidden_criteria": [
+    {
+      "id": "HID-1",
+      "weight": "high",
+      "description": "Instrumentação de MongoDB no Core",
+      "rationale": "O escopo menciona auto-instrumentação para HTTP e MongoDB. A task pede expressamente '@opentelemetry/auto-instrumentations-node'. Um dev atento vai verificar se o SDK captura spans de queries MongoDB — que é um dos pontos de performance mais relevantes para debugar.",
+      "how_to_verify": "Verificar se '@opentelemetry/instrumentation-mongodb' está configurado (via auto-instrumentations ou explicitamente) no Core e se spans de MongoDB aparecem nos traces.",
+      "evaluation": {
+        "insufficient": "Sem instrumentação MongoDB — apenas spans HTTP aparecem nos traces do Core",
+        "partial": "Pacote instalado mas sem configuração explícita ou auto-instrumentações não incluem MongoDB",
+        "sufficient": "Spans de queries MongoDB visíveis nos traces do Core como filhos dos spans de requisição"
+      }
+    },
+    {
+      "id": "HID-2",
+      "weight": "high",
+      "description": "Inicialização do SDK antes do NestJS",
+      "rationale": "Se o SDK OTel for inicializado após o require do NestJS (e portanto após os requires de http, mongoose, etc.), a auto-instrumentação não consegue fazer o monkey-patch corretamente e os spans não são gerados. É um erro silencioso — a aplicação sobe normalmente mas sem traces.",
+      "how_to_verify": "Verificar se instrumentation.ts é o primeiro import em main.ts (antes de qualquer import NestJS) OU se é passado via --require no comando node. Verificar a ordem de imports no arquivo.",
+      "evaluation": {
+        "insufficient": "SDK inicializado após imports do NestJS — auto-instrumentação não funciona corretamente",
+        "partial": "SDK em arquivo separado mas importado no meio de main.ts, após alguns imports NestJS",
+        "sufficient": "instrumentation.ts é o primeiro import de main.ts ou passado via --require antes do bundle"
+      }
+    },
+    {
+      "id": "HID-3",
+      "weight": "medium",
+      "description": "Logs correlacionados também em produtos e clientes",
+      "rationale": "O DoD exige correlação de logs apenas em POST /orders. Um dev que entendeu o valor da observabilidade vai estender o padrão para os outros endpoints de escrita — POST /products e POST /customers — mesmo sem ser pedido explicitamente.",
+      "how_to_verify": "Verificar se ProductsService.create() e CustomersService.create() também emitem logs com trace_id e span_id.",
+      "evaluation": {
+        "insufficient": "Correlação de log apenas em orders, como pedido no mínimo",
+        "partial": "Um dos dois (products ou customers) com log correlacionado além do orders",
+        "sufficient": "Os três endpoints de escrita (orders, products, customers) emitem logs com trace_id e span_id"
+      }
+    }
+  ],
+
+  "final_evaluation": {
+    "rules": {
+      "insufficient": {
+        "condition": "Um ou mais dod_criteria estão como insufficient",
+        "description": "Stack de observabilidade incompleta — algum componente não funciona ou não está integrado."
+      },
+      "partial": {
+        "condition": "Nenhum dod_criteria está insufficient, mas um ou mais estão partial",
+        "description": "Stack funcional mas com lacunas em instrumentação, configuração do Prometheus ou dashboard."
+      },
+      "sufficient": {
+        "condition": "Todos os dod_criteria estão sufficient E nenhum hidden_criteria está sufficient",
+        "description": "Stack completa e funcional, mas sem atenção a MongoDB, ordem de inicialização ou cobertura de logs."
+      },
+      "very_good": {
+        "condition": "Todos os dod_criteria estão sufficient E ao menos um hidden_criteria está sufficient",
+        "description": "Implementação sólida com atenção a ao menos um aspecto avançado de observabilidade."
+      },
+      "exceptional": {
+        "condition": "Todos os dod_criteria estão sufficient E todos os hidden_criteria estão sufficient",
+        "description": "Stack completa, MongoDB instrumentado, SDK inicializado corretamente e correlação de logs abrangente."
+      }
+    },
+    "tiebreaker": "HID-1 e HID-2 têm peso igual (high) — se houver empate, preferir o nível mais baixo para ser conservador. HID-3 tem menor peso."
+  },
+
+  "evaluator_instructions": {
+    "tone": "Técnico e detalhado. É a task mais complexa de instrumentação — valorize o que funcionou e seja específico sobre o que ficou incompleto e por que importa em produção.",
+    "on_hidden_not_found": "Para HID-2: sugerir que o dev pesquise sobre a ordem de inicialização do OTel SDK e monkey-patching. Para HID-1: mencionar que traces sem spans de banco de dados limitam muito a utilidade do tracing para diagnóstico de performance.",
+    "on_hidden_partial": "Para HID-2: reconhecer que o dev colocou o SDK em arquivo separado, mesmo que a ordem de import ainda não esteja ideal.",
+    "on_alternative_solutions": "Usar Winston ou Pino com o span context em vez de console.log estruturado é válido e até preferível — avaliar se trace_id e span_id estão presentes no output final.",
+    "language": "Português"
+  }
+}

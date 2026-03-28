@@ -1,0 +1,41 @@
+services:
+  bff:
+    build:
+      context: ./bff
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      CORE_URL: http://core:3001
+    depends_on:
+      - core
+    restart: unless-stopped
+
+  core:
+    build:
+      context: ./core
+    ports:
+      - '3001:3001'
+    environment:
+      PORT: 3001
+      MONGODB_URI: mongodb://mongodb:27017/ecommerce
+      # REDIS_HOST e REDIS_PORT não são usados ainda — veja task T-004
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  # Redis declarado mas não utilizado pelo código ainda — veja task T-004
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+
+volumes:
+  mongo_data:

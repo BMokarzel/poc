@@ -1,0 +1,84 @@
+{
+  "id": "PLAN-000",
+  "personId": "DEV-000",
+  "version": "1.0",
+
+  "meta": {
+    "generatedAt": "",
+    "generatedBy": "evaluator",
+    "basedOnEvaluations": ["T-000"],
+    "totalDurationWeeks": 8,
+    "startDate": "",
+    "endDate": ""
+  },
+
+  "diagnosis": {
+    "description": "Resumo interpretativo dos padrões observados que motivaram este plano.",
+    "weaknesses": [
+      {
+        "area": "nome da área (ex: testes, observabilidade)",
+        "technology": "tecnologia relacionada (ex: OpenTelemetry)",
+        "evidence": "comportamento observado nas avaliações que justifica incluir esta área",
+        "priority": "high | medium | low"
+      }
+    ],
+    "strengths": [
+      {
+        "area": "nome da área",
+        "note": "por que esta área não precisa de foco intenso agora"
+      }
+    ]
+  },
+
+  "topics": [
+    {
+      "id": "STUDY-1",
+      "title": "",
+      "technology": "JavaScript | Node.js | NestJS | OpenTelemetry | Honeycomb | Splunk | MongoDB | Redis",
+      "category": "fundamentals | patterns | tooling | observability | database | testing",
+      "priority": "high | medium | low",
+      "rationale": "Por que este tópico foi incluído — conexão direta com gaps identificados nas avaliações.",
+
+      "timeline": {
+        "startWeek": 1,
+        "endWeek": 2,
+        "durationDays": 7,
+        "effort": "light | moderate | intensive"
+      },
+
+      "objectives": [
+        "O que o dev deve ser capaz de fazer ao final deste tópico (verificável)"
+      ],
+
+      "references": [
+        {
+          "title": "",
+          "url": "",
+          "type": "doc | video | article | course | repo",
+          "estimatedTime": "ex: 30min | 2h",
+          "note": "por que esta referência é relevante para o gap específico"
+        }
+      ],
+
+      "milestones": [
+        {
+          "id": "MS-1",
+          "description": "Evidência concreta de que o tópico foi absorvido",
+          "type": "reading | exercise | implementation | reflection"
+        }
+      ],
+
+      "completionStatus": "not_started | in_progress | done"
+    }
+  ],
+
+  "weeklyOverview": [
+    {
+      "week": 1,
+      "topicIds": ["STUDY-1"],
+      "focus": "descrição do foco da semana em uma linha"
+    }
+  ],
+
+  "planStatus": "draft | active | completed | abandoned"
+}

@@ -1,0 +1,128 @@
+{
+  "id": "T-001",
+  "name": "Novo endpoint de páginas no módulo existente",
+  "type": "FEATURE",
+  "difficulty": "easy",
+
+  "references": {
+    "pattern_file": null,
+    "functional_check": {
+      "description": "Verifica se GET /pages?hasSection=hero retorna apenas páginas com section hero e se GET /pages?hasSection=inexistente retorna array vazio",
+      "command": "not_configured"
+    }
+  },
+
+  "dod_criteria": [
+    {
+      "id": "DOD-1",
+      "maps_to_dod": "GET /pages?hasSection=hero retorna apenas as páginas que contêm section do tipo hero",
+      "how_to_verify": "No diff, verificar se PagesController passa o query param para PagesService e se PagesService filtra pages cujo array sections contém ao menos um item com type === valor do param. Checar o teste correspondente.",
+      "evaluation": {
+        "insufficient": "O filtro não foi implementado, ou está no controller em vez do service, ou não filtra corretamente por type dentro de sections",
+        "partial": "O filtro existe no service mas há bug no acesso à estrutura de dados (ex: acessa sections do objeto resumido em vez do objeto completo PAGES) ou o teste não cobre este cenário",
+        "sufficient": "O filtro está no PagesService, acessa corretamente o array sections do objeto completo, e o teste valida o comportamento"
+      }
+    },
+    {
+      "id": "DOD-2",
+      "maps_to_dod": "GET /pages sem query param retorna todas as páginas (comportamento anterior preservado)",
+      "how_to_verify": "Verificar se a chamada sem query param ainda retorna todas as páginas. Checar se há regressão no comportamento anterior — o teste existente ou novo deve cobrir isso.",
+      "evaluation": {
+        "insufficient": "A chamada sem param quebra ou retorna resultado diferente do anterior",
+        "partial": "Funciona em runtime mas não há teste cobrindo o comportamento sem param",
+        "sufficient": "Comportamento sem param preservado e coberto por teste"
+      }
+    },
+    {
+      "id": "DOD-3",
+      "maps_to_dod": "GET /pages?hasSection=inexistente retorna array vazio (não lança erro)",
+      "how_to_verify": "Verificar no diff se o service retorna [] quando nenhuma página satisfaz o filtro, sem lançar exceção. Checar teste cobrindo esse caso.",
+      "evaluation": {
+        "insufficient": "Lança exceção ou retorna null/undefined para seção inexistente",
+        "partial": "Retorna array vazio mas não há teste cobrindo esse caso limite",
+        "sufficient": "Retorna array vazio e há teste explícito para o caso"
+      }
+    },
+    {
+      "id": "DOD-4",
+      "maps_to_dod": "A lógica de filtro está em PagesService, não no controller",
+      "how_to_verify": "No diff, verificar que PagesController apenas extrai o query param e o passa para PagesService. Toda lógica de filtragem deve estar em PagesService.",
+      "evaluation": {
+        "insufficient": "A lógica de filtro está no controller",
+        "partial": "Lógica dividida entre controller e service",
+        "sufficient": "Controller apenas extrai e repassa o param; todo filtro está no service"
+      }
+    },
+    {
+      "id": "DOD-5",
+      "maps_to_dod": "Há testes cobrindo os três cenários",
+      "how_to_verify": "Verificar se existem testes para: (1) filtro por section existente, (2) sem query param, (3) section inexistente.",
+      "evaluation": {
+        "insufficient": "Menos de dois cenários cobertos por testes",
+        "partial": "Dois dos três cenários cobertos",
+        "sufficient": "Os três cenários cobertos por testes que passam"
+      }
+    }
+  ],
+
+  "hidden_criteria": [
+    {
+      "id": "HID-1",
+      "weight": "high",
+      "description": "Validação do query param com class-validator",
+      "rationale": "Um dev que leu o projeto vai perceber que todos os DTOs usam class-validator. Adicionar um DTO para o query param com @IsOptional e @IsString segue o padrão estabelecido e evita que valores inesperados cheguem ao service.",
+      "how_to_verify": "Verificar no diff se foi criado um DTO para o query param de GET /pages usando @IsOptional e @IsString do class-validator, e se o controller usa @Query() com esse DTO.",
+      "evaluation": {
+        "insufficient": "Nenhum DTO criado; query param recebido como string sem validação",
+        "partial": "DTO criado mas sem decorators de validação, ou validação incompleta",
+        "sufficient": "DTO com @IsOptional e @IsString criado e usado no controller"
+      }
+    },
+    {
+      "id": "HID-2",
+      "weight": "medium",
+      "description": "Acesso ao objeto completo PAGES para o filtro",
+      "rationale": "listPages() atualmente retorna apenas slug e title — um dev desatento vai tentar filtrar sobre esse objeto resumido e não vai encontrar sections. O correto é filtrar sobre o objeto completo PAGES e depois mapear para o formato de resposta.",
+      "how_to_verify": "Verificar no diff se o filtro acessa PAGES diretamente (o objeto com sections) antes de mapear para o formato de resposta, e não tenta acessar sections no objeto já mapeado.",
+      "evaluation": {
+        "insufficient": "Tenta filtrar sobre o objeto mapeado (sem sections) — o filtro nunca funciona corretamente",
+        "partial": "Acessa PAGES diretamente mas a lógica de mapeamento após o filtro está duplicada ou inconsistente",
+        "sufficient": "Filtra sobre PAGES, aplica o filtro por sections, e então mapeia para slug+title"
+      }
+    }
+  ],
+
+  "final_evaluation": {
+    "rules": {
+      "insufficient": {
+        "condition": "Um ou mais dod_criteria estão como insufficient",
+        "description": "A feature não está completa ou o filtro não funciona corretamente."
+      },
+      "partial": {
+        "condition": "Nenhum dod_criteria está insufficient, mas um ou mais estão partial",
+        "description": "A implementação está no caminho certo mas faltam testes ou há casos limite não tratados."
+      },
+      "sufficient": {
+        "condition": "Todos os dod_criteria estão sufficient E nenhum hidden_criteria está sufficient",
+        "description": "Feature funcionando e testada, mas sem atenção ao padrão de DTOs do projeto ou à estrutura de dados."
+      },
+      "very_good": {
+        "condition": "Todos os dod_criteria estão sufficient E ao menos um hidden_criteria está sufficient",
+        "description": "Feature completa, testada e alinhada com os padrões do projeto."
+      },
+      "exceptional": {
+        "condition": "Todos os dod_criteria estão sufficient E todos os hidden_criteria estão sufficient",
+        "description": "Feature completa, testada, com DTO de validação e acesso correto à estrutura de dados."
+      }
+    },
+    "tiebreaker": "Em caso de dúvida entre dois níveis adjacentes, hidden_criteria com weight 'high' têm precedência sobre 'medium'."
+  },
+
+  "evaluator_instructions": {
+    "tone": "Encorajador e direto. É uma task easy — foque em reforçar o que foi feito bem e sinalize os padrões do projeto que ficaram de fora.",
+    "on_hidden_not_found": "Não revelar quais são os pontos ocultos. Sugerir que o dev releia como os outros endpoints do projeto recebem e validam query params.",
+    "on_hidden_partial": "Reconhecer que o dev percebeu o ponto mas não o completou.",
+    "on_alternative_solutions": "Se o dev implementou o filtro de forma diferente mas correta (ex: usando Array.filter com lógica equivalente), considerar sufficient no DOD correspondente.",
+    "language": "Português"
+  }
+}

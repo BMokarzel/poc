@@ -1,0 +1,160 @@
+{
+  "id": "T-003",
+  "name": "Comunicação via GraphQL entre BFF e Core",
+  "type": "FEATURE",
+  "difficulty": "medium",
+
+  "references": {
+    "pattern_file": null,
+    "functional_check": {
+      "description": "Verifica se POST /graphql no Core responde às queries de products e orders, e se GET /products e GET /orders no BFF continuam respondendo",
+      "command": "not_configured"
+    }
+  },
+
+  "dod_criteria": [
+    {
+      "id": "DOD-1",
+      "maps_to_dod": "POST /graphql no Core responde à query { products { id name price } }",
+      "how_to_verify": "No diff, verificar se ProductResolver foi criado com @Query() retornando Product[] e se GraphQLModule está configurado no AppModule do Core. Checar se o resolver delega ao ProductsService.",
+      "evaluation": {
+        "insufficient": "GraphQL não configurado no Core, ou ProductResolver ausente, ou query retorna erro de schema",
+        "partial": "Resolver criado mas schema incorreto (ex: campos faltando), ou GraphQLModule configurado sem autoSchemaFile/typePaths",
+        "sufficient": "Query products funciona e retorna id, name e price corretamente"
+      }
+    },
+    {
+      "id": "DOD-2",
+      "maps_to_dod": "POST /graphql no Core responde à query { product(id: \"...\") { id name } }",
+      "how_to_verify": "Verificar se ProductResolver tem @Query() com argumento @Args('id') e retorna Product | null.",
+      "evaluation": {
+        "insufficient": "Query product por id não existe no schema",
+        "partial": "Query existe mas o argumento id não está tipado corretamente ou retorna erro para id inexistente",
+        "sufficient": "Query product(id) funciona, retorna o produto correto ou null para id inexistente"
+      }
+    },
+    {
+      "id": "DOD-3",
+      "maps_to_dod": "POST /graphql no Core responde à query { orders { id status total } }",
+      "how_to_verify": "Verificar se OrderResolver foi criado com @Query() retornando Order[] e se os campos id, status, total estão no ObjectType.",
+      "evaluation": {
+        "insufficient": "OrderResolver ausente ou query orders não existe no schema",
+        "partial": "Query existe mas campos status ou total faltam no ObjectType",
+        "sufficient": "Query orders funciona e retorna id, status e total corretamente"
+      }
+    },
+    {
+      "id": "DOD-4",
+      "maps_to_dod": "GET /products no BFF continua funcionando e usa GraphQL internamente para buscar dados do Core",
+      "how_to_verify": "Verificar se ProductsService no BFF foi alterado para usar um cliente GraphQL em vez de CoreHttpClient.get('/products'). O endpoint REST do BFF deve continuar respondendo.",
+      "evaluation": {
+        "insufficient": "GET /products no BFF quebrou ou ainda usa REST para buscar products do Core",
+        "partial": "Usa GraphQL internamente mas o formato de resposta do BFF mudou (quebra de contrato) ou há erro intermitente",
+        "sufficient": "GET /products no BFF responde com o mesmo contrato anterior e usa GraphQL para buscar do Core"
+      }
+    },
+    {
+      "id": "DOD-5",
+      "maps_to_dod": "GET /orders no BFF continua funcionando e usa GraphQL internamente",
+      "how_to_verify": "Verificar se OrdersService no BFF foi alterado para usar GraphQL. Mesmo critério do DOD-4.",
+      "evaluation": {
+        "insufficient": "GET /orders no BFF quebrou ou ainda usa REST",
+        "partial": "Usa GraphQL mas com regressão no contrato de resposta",
+        "sufficient": "GET /orders responde corretamente e usa GraphQL internamente"
+      }
+    },
+    {
+      "id": "DOD-6",
+      "maps_to_dod": "GET /customers no BFF continua funcionando via REST (não migrado)",
+      "how_to_verify": "Verificar no diff que CustomersService no BFF não foi modificado — ainda usa CoreHttpClient.get('/customers').",
+      "evaluation": {
+        "insufficient": "Customers foi migrado para GraphQL contra o especificado, ou o endpoint quebrou",
+        "partial": "N/A",
+        "sufficient": "CustomersService inalterado, endpoint funcionando via REST"
+      }
+    },
+    {
+      "id": "DOD-7",
+      "maps_to_dod": "Há testes unitários cobrindo os resolvers do Core",
+      "how_to_verify": "Verificar se há spec files para ProductResolver e OrderResolver com ao menos um teste cada.",
+      "evaluation": {
+        "insufficient": "Nenhum teste para os resolvers",
+        "partial": "Apenas um dos dois resolvers testado",
+        "sufficient": "ProductResolver e OrderResolver com ao menos um teste cada passando"
+      }
+    }
+  ],
+
+  "hidden_criteria": [
+    {
+      "id": "HID-1",
+      "weight": "high",
+      "description": "Tratamento de erro no cliente GraphQL do BFF",
+      "rationale": "Ao substituir chamadas REST por GraphQL, erros de rede ou erros retornados no campo errors do response GraphQL precisam ser tratados. Um dev que pensa em resiliência vai garantir que falhas na comunicação não derrubem o BFF silenciosamente.",
+      "how_to_verify": "Verificar se o cliente GraphQL no BFF trata o caso em que data é null ou errors está presente na resposta, e se lança ou propaga o erro de forma controlada.",
+      "evaluation": {
+        "insufficient": "Nenhum tratamento — um erro GraphQL retornado pelo Core causaria comportamento imprevisível no BFF",
+        "partial": "Há try/catch genérico mas não verifica o campo errors da resposta GraphQL especificamente",
+        "sufficient": "Verifica errors na resposta GraphQL e lança exceção NestJS apropriada (ex: BadGatewayException ou InternalServerErrorException)"
+      }
+    },
+    {
+      "id": "HID-2",
+      "weight": "medium",
+      "description": "N+1 no OrderResolver ao popular produtos",
+      "rationale": "O OrderResolver que retorna orders provavelmente inclui productIds. Se o dev adicionar um @ResolveField para products dentro de Order, e não usar DataLoader, vai reproduzir o mesmo N+1 que já existe no OrdersService do Core — só que agora no GraphQL. Um dev atento evita ou documenta esse trade-off.",
+      "how_to_verify": "Verificar se o OrderResolver tem @ResolveField para products. Se tiver, verificar se usa DataLoader ou se há um comentário reconhecendo o N+1.",
+      "evaluation": {
+        "insufficient": "@ResolveField para products implementado sem DataLoader e sem comentário sobre o trade-off",
+        "partial": "O dev reconhece o N+1 em comentário mas não o resolve",
+        "sufficient": "Usa DataLoader para batching, ou não expõe products no tipo Order (evita o problema por design)"
+      }
+    },
+    {
+      "id": "HID-3",
+      "weight": "low",
+      "description": "Escolha justificada entre code-first e schema-first",
+      "rationale": "A task deixa a escolha em aberto mas pede justificativa no commit. Um dev que reflete sobre a decisão demonstra compreensão dos trade-offs da ferramenta.",
+      "how_to_verify": "Verificar se a mensagem de commit ou um comentário no código justifica a escolha entre code-first e schema-first.",
+      "evaluation": {
+        "insufficient": "Nenhuma justificativa — escolha feita sem reflexão aparente",
+        "partial": "Justificativa vaga (ex: 'prefiro code-first')",
+        "sufficient": "Justificativa com argumento técnico (ex: 'code-first evita duplicação de tipos com os schemas Mongoose já existentes')"
+      }
+    }
+  ],
+
+  "final_evaluation": {
+    "rules": {
+      "insufficient": {
+        "condition": "Um ou mais dod_criteria estão como insufficient",
+        "description": "GraphQL não está funcional no Core ou a integração no BFF quebrou endpoints existentes."
+      },
+      "partial": {
+        "condition": "Nenhum dod_criteria está insufficient, mas um ou mais estão partial",
+        "description": "Integração no caminho certo mas com gaps em schema, testes ou contrato de resposta."
+      },
+      "sufficient": {
+        "condition": "Todos os dod_criteria estão sufficient E nenhum hidden_criteria está sufficient",
+        "description": "GraphQL funcionando, integração correta, testes presentes."
+      },
+      "very_good": {
+        "condition": "Todos os dod_criteria estão sufficient E ao menos um hidden_criteria está sufficient",
+        "description": "Além de funcional, o dev demonstrou atenção a resiliência ou ao problema de N+1."
+      },
+      "exceptional": {
+        "condition": "Todos os dod_criteria estão sufficient E todos os hidden_criteria estão sufficient",
+        "description": "Implementação completa com tratamento de erro, N+1 resolvido e decisão técnica documentada."
+      }
+    },
+    "tiebreaker": "Em caso de dúvida entre níveis adjacentes, HID-1 (tratamento de erro) tem precedência sobre HID-2, que tem precedência sobre HID-3."
+  },
+
+  "evaluator_instructions": {
+    "tone": "Técnico e específico. É uma task medium com decisões de design — explore as escolhas feitas pelo dev e dê contexto sobre os trade-offs.",
+    "on_hidden_not_found": "Para HID-1: sugerir que o dev pense no que acontece quando o Core retorna um erro GraphQL e como o BFF se comporta. Para HID-2: sugerir que o dev leia sobre o problema N+1 em GraphQL e DataLoader.",
+    "on_hidden_partial": "Reconhecer que o dev percebeu o problema e pontuar o que faltou para a solução completa.",
+    "on_alternative_solutions": "graphql-request e Apollo Client são igualmente válidos como cliente GraphQL no BFF. Avaliar o comportamento, não a biblioteca.",
+    "language": "Português"
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "id": "T-006",
+  "name": "Microsserviço de feature toggles e integração nos endpoints",
+  "type": "FEATURE",
+  "difficulty": "hard",
+
+  "references": {
+    "pattern_file": null,
+    "functional_check": {
+      "description": "Verifica se GET /toggles retorna lista, se PATCH /toggles/:name altera o estado e se GET /pages/home omite promo-banner quando discount-banner está disabled",
+      "command": "not_configured"
+    }
+  },
+
+  "dod_criteria": [
+    {
+      "id": "DOD-1",
+      "maps_to_dod": "GET /toggles retorna lista com ao menos 3 toggles",
+      "how_to_verify": "No diff, verificar se TogglesService tem ao menos 3 toggles iniciais hardcoded com nome e enabled. Verificar se GET /toggles retorna todos.",
+      "evaluation": {
+        "insufficient": "Menos de 3 toggles ou endpoint não implementado",
+        "partial": "3 toggles presentes mas sem o campo enabled, ou nomes não relacionados ao domínio",
+        "sufficient": "3+ toggles com nome e enabled: boolean retornados por GET /toggles"
+      }
+    },
+    {
+      "id": "DOD-2",
+      "maps_to_dod": "GET /toggles/:name retorna o toggle correto ou 404",
+      "how_to_verify": "Verificar se TogglesService implementa busca por nome e lança NotFoundException para toggles inexistentes.",
+      "evaluation": {
+        "insufficient": "Endpoint não implementado ou não retorna 404 para toggle inexistente",
+        "partial": "Retorna toggle correto mas sem 404 para inexistente (retorna null ou 200 vazio)",
+        "sufficient": "Toggle correto retornado para nome existente e 404 para inexistente, com teste cobrindo ambos"
+      }
+    },
+    {
+      "id": "DOD-3",
+      "maps_to_dod": "PATCH /toggles/:name altera o estado e a mudança é refletida na próxima consulta",
+      "how_to_verify": "Verificar se PATCH aceita { enabled: boolean } e persiste o novo estado no Map em memória. Verificar se GET /toggles/:name após PATCH retorna o estado atualizado.",
+      "evaluation": {
+        "insufficient": "PATCH não implementado ou não persiste a mudança (sempre retorna o estado inicial)",
+        "partial": "PATCH persiste mas não valida o payload (aceita qualquer valor para enabled) ou retorna 404 para toggle existente",
+        "sufficient": "PATCH valida payload, persiste em memória, e a mudança é refletida em GET subsequente. Coberto por teste."
+      }
+    },
+    {
+      "id": "DOD-4",
+      "maps_to_dod": "GET /pages/home com discount-banner habilitado retorna a section promo-banner",
+      "how_to_verify": "Verificar se PagesService consulta TogglesHttpClient para o toggle 'discount-banner' e inclui a section promo-banner na resposta quando enabled é true.",
+      "evaluation": {
+        "insufficient": "PagesService não consulta o serviço de toggles, ou promo-banner sempre presente independente do toggle",
+        "partial": "Consulta feita mas lógica de inclusão/exclusão invertida, ou apenas um dos dois casos funciona",
+        "sufficient": "promo-banner incluída quando discount-banner enabled:true e ausente quando enabled:false"
+      }
+    },
+    {
+      "id": "DOD-5",
+      "maps_to_dod": "GET /pages/home com discount-banner desabilitado não retorna a section promo-banner",
+      "how_to_verify": "Coberto pela verificação do DOD-4. Confirmar que o teste cobre explicitamente o caso disabled.",
+      "evaluation": {
+        "insufficient": "promo-banner sempre presente",
+        "partial": "Lógica correta mas sem teste para o caso disabled",
+        "sufficient": "promo-banner ausente quando disabled, coberto por teste"
+      }
+    },
+    {
+      "id": "DOD-6",
+      "maps_to_dod": "POST /orders com express-shipping habilitado retorna expressShipping: true na resposta",
+      "how_to_verify": "Verificar se OrdersService no Core consulta TogglesHttpClient para 'express-shipping' e adiciona expressShipping ao objeto de resposta conforme o estado do toggle.",
+      "evaluation": {
+        "insufficient": "Core não consulta o serviço de toggles, ou expressShipping sempre ausente da resposta",
+        "partial": "Consulta feita mas campo expressShipping sempre true ou sempre false independente do toggle",
+        "sufficient": "expressShipping: true quando toggle enabled, expressShipping: false (ou ausente) quando disabled"
+      }
+    },
+    {
+      "id": "DOD-7",
+      "maps_to_dod": "Se o serviço de toggles estiver fora do ar, BFF e Core respondem normalmente com o estado padrão",
+      "how_to_verify": "Verificar se TogglesHttpClient no BFF e no Core têm try/catch ou timeout com fallback que retorna o estado padrão (disabled) quando a chamada falha.",
+      "evaluation": {
+        "insufficient": "Sem tratamento de falha — uma exception do toggles derrubaria o endpoint do BFF ou Core",
+        "partial": "try/catch presente mas relança o erro em vez de retornar o fallback",
+        "sufficient": "Falha na consulta de toggle silenciada com retorno do estado padrão (disabled), sem impacto no endpoint principal"
+      }
+    },
+    {
+      "id": "DOD-8",
+      "maps_to_dod": "O serviço toggles está no docker-compose.yml e sobe com docker compose up",
+      "how_to_verify": "Verificar se o serviço toggles foi adicionado ao docker-compose.yml com porta 3002 e variável TOGGLES_URL nos serviços que o consomem.",
+      "evaluation": {
+        "insufficient": "Serviço toggles ausente do docker-compose",
+        "partial": "Serviço no compose mas TOGGLES_URL não configurada nos demais serviços",
+        "sufficient": "Serviço toggles no compose com porta 3002 e TOGGLES_URL propagada para BFF e Core"
+      }
+    },
+    {
+      "id": "DOD-9",
+      "maps_to_dod": "Há testes cobrindo a lógica de fallback e a integração condicional nos endpoints",
+      "how_to_verify": "Verificar se há testes para: (1) toggle enabled → comportamento A, (2) toggle disabled → comportamento B, (3) serviço de toggles indisponível → fallback.",
+      "evaluation": {
+        "insufficient": "Menos de dois cenários cobertos",
+        "partial": "Dois dos três cenários cobertos",
+        "sufficient": "Os três cenários cobertos por testes que passam"
+      }
+    }
+  ],
+
+  "hidden_criteria": [
+    {
+      "id": "HID-1",
+      "weight": "high",
+      "description": "Timeout na chamada ao serviço de toggles",
+      "rationale": "Um serviço de feature toggle é chamado no hot path de cada requisição. Se não tiver timeout configurado, uma lentidão no serviço de toggles degradaria toda a plataforma. O fallback por exceção (DOD-7) não é suficiente se a chamada travar indefinidamente.",
+      "how_to_verify": "Verificar se TogglesHttpClient configura um timeout explícito (ex: 200-500ms) na chamada HTTP ao serviço de toggles.",
+      "evaluation": {
+        "insufficient": "Nenhum timeout — chamada pode bloquear indefinidamente",
+        "partial": "Timeout configurado mas muito alto (ex: 5s) para um serviço consultado no hot path",
+        "sufficient": "Timeout configurado em valor razoável (<=500ms) para chamada no hot path"
+      }
+    },
+    {
+      "id": "HID-2",
+      "weight": "high",
+      "description": "Cache local do estado dos toggles",
+      "rationale": "Consultar o serviço de toggles em toda requisição adiciona latência e cria dependência síncrona. Em produção, toggles mudam raramente — um cache local de curta duração (ex: 30s) reduziria drasticamente a carga no serviço de toggles e a latência dos endpoints.",
+      "how_to_verify": "Verificar se TogglesHttpClient ou o service que o usa implementa algum cache local (Map com TTL, ou CACHE_MANAGER) para o estado dos toggles.",
+      "evaluation": {
+        "insufficient": "Sem cache local — toda requisição resulta em uma chamada ao serviço de toggles",
+        "partial": "Cache implementado mas sem TTL (cache eterno — mudanças no toggle não se propagam)",
+        "sufficient": "Cache com TTL curto (ex: 10s-60s) que reduz chamadas ao serviço sem tornar os toggles obsoletos"
+      }
+    },
+    {
+      "id": "HID-3",
+      "weight": "medium",
+      "description": "Estado dos toggles iniciais coerente com o domínio",
+      "rationale": "Os três toggles iniciais precisam ter nomes e contexto que façam sentido para uma plataforma de e-commerce. Um dev engajado vai criar toggles que contam uma história plausível de features em rollout, não apenas nomes genéricos.",
+      "how_to_verify": "Verificar se os três toggles (incluindo new-checkout-flow, discount-banner e express-shipping ou equivalentes) têm nomes e estados iniciais que fazem sentido para o domínio.",
+      "evaluation": {
+        "insufficient": "Nomes genéricos (ex: toggle1, featureA) sem relação com o domínio",
+        "partial": "Um toggle com nome plausível e os demais genéricos",
+        "sufficient": "Os três toggles com nomes coerentes com features reais de e-commerce e estado inicial justificado"
+      }
+    }
+  ],
+
+  "final_evaluation": {
+    "rules": {
+      "insufficient": {
+        "condition": "Um ou mais dod_criteria estão como insufficient",
+        "description": "Microsserviço incompleto ou integração faltando nos endpoints."
+      },
+      "partial": {
+        "condition": "Nenhum dod_criteria está insufficient, mas um ou mais estão partial",
+        "description": "Serviço funcional mas com gaps em fallback, testes ou integração no compose."
+      },
+      "sufficient": {
+        "condition": "Todos os dod_criteria estão sufficient E nenhum hidden_criteria está sufficient",
+        "description": "Microsserviço completo e integrado, mas sem atenção a timeout e cache no hot path."
+      },
+      "very_good": {
+        "condition": "Todos os dod_criteria estão sufficient E ao menos um hidden_criteria está sufficient",
+        "description": "Implementação robusta com atenção a pelo menos um aspecto de produção (timeout ou cache)."
+      },
+      "exceptional": {
+        "condition": "Todos os dod_criteria estão sufficient E todos os hidden_criteria estão sufficient",
+        "description": "Microsserviço completo, resiliente, com cache no hot path e toggles coerentes com o domínio."
+      }
+    },
+    "tiebreaker": "HID-1 e HID-2 têm peso igual (high) — em caso de empate, preferir o nível mais baixo. HID-3 tem menor peso."
+  },
+
+  "evaluator_instructions": {
+    "tone": "Exigente mas justo. É a task de maior complexidade sistêmica — cobra não só implementação mas pensamento em produção. Reconheça explicitamente se o dev pensou em timeout e cache.",
+    "on_hidden_not_found": "Para HID-1 e HID-2: sugerir que o dev pense no impacto de chamar um serviço externo no hot path de cada requisição e quais garantias são necessárias para que isso não degrade a plataforma.",
+    "on_hidden_partial": "Para HID-2: reconhecer a implementação de cache e apontar que cache sem TTL pode ser pior que sem cache em ambientes de longa duração.",
+    "on_alternative_solutions": "Feature flags implementadas com biblioteca dedicada (ex: Unleash client, LaunchDarkly SDK) são válidas se o microsserviço toggles ainda for criado como especificado. Avaliar o resultado, não a abordagem.",
+    "language": "Português"
+  }
+}

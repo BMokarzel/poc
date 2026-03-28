@@ -1,0 +1,140 @@
+{
+  "id": "T-004",
+  "name": "Cache Redis nas leituras do Core",
+  "type": "FEATURE",
+  "difficulty": "medium",
+
+  "references": {
+    "pattern_file": null,
+    "functional_check": {
+      "description": "Verifica se GET /products retorna resposta cacheada no segundo acesso e se POST /products invalida o cache",
+      "command": "not_configured"
+    }
+  },
+
+  "dod_criteria": [
+    {
+      "id": "DOD-1",
+      "maps_to_dod": "GET /products retorna resposta cacheada no segundo acesso",
+      "how_to_verify": "No diff, verificar se ProductsService usa CACHE_MANAGER para set/get em findAll(), com a chave 'products:all' ou equivalente. Verificar se na segunda chamada o service retorna do cache sem chamar productModel.find().",
+      "evaluation": {
+        "insufficient": "Sem implementação de cache em findAll(), ou cache configurado mas nunca utilizado",
+        "partial": "Cache implementado mas TTL não configurado, ou a lógica de set/get está invertida, ou o CacheInterceptor foi usado sem controle de chave",
+        "sufficient": "Cache manual com get-before-query e set-after-query em findAll(), com TTL de ~60s e chave explícita"
+      }
+    },
+    {
+      "id": "DOD-2",
+      "maps_to_dod": "GET /products/:id retorna resposta cacheada no segundo acesso",
+      "how_to_verify": "Verificar se findOne() também usa CACHE_MANAGER com chave parametrizada por id (ex: 'products:<id>') e TTL de ~120s.",
+      "evaluation": {
+        "insufficient": "findOne() sem cache",
+        "partial": "Cache em findOne() mas com chave fixa (não parametrizada por id) — todos os produtos compartilhariam a mesma chave",
+        "sufficient": "Cache com chave dinâmica por id e TTL correto"
+      }
+    },
+    {
+      "id": "DOD-3",
+      "maps_to_dod": "POST /products invalida o cache da lista",
+      "how_to_verify": "Verificar se create() no ProductsService chama cacheManager.del('products:all') ou equivalente após salvar o produto.",
+      "evaluation": {
+        "insufficient": "Nenhuma invalidação — o cache de lista fica obsoleto após criação de produto",
+        "partial": "Invalidação presente mas com chave errada ou executada antes do save (ordem incorreta)",
+        "sufficient": "del() chamado com a chave correta após o produto ser salvo com sucesso"
+      }
+    },
+    {
+      "id": "DOD-4",
+      "maps_to_dod": "Conexão com Redis configurada via REDIS_HOST e REDIS_PORT",
+      "how_to_verify": "Verificar se CacheModule.registerAsync usa process.env.REDIS_HOST e process.env.REDIS_PORT. Verificar se .env.example foi atualizado com essas variáveis.",
+      "evaluation": {
+        "insufficient": "Host e porta do Redis hardcoded no código",
+        "partial": "Usa variáveis de ambiente mas apenas uma das duas (host ou porta)",
+        "sufficient": "Ambas as variáveis lidas do environment e .env.example atualizado"
+      }
+    },
+    {
+      "id": "DOD-5",
+      "maps_to_dod": "Há testes unitários cobrindo o comportamento de cache e invalidação",
+      "how_to_verify": "Verificar se há testes mockando CACHE_MANAGER que verificam: (1) cache hit em findAll(), (2) cache miss seguido de set, (3) del chamado em create().",
+      "evaluation": {
+        "insufficient": "Nenhum teste cobrindo comportamento de cache",
+        "partial": "Apenas cache hit ou apenas invalidação testada",
+        "sufficient": "Os três comportamentos (hit, miss+set, invalidação) cobertos por testes"
+      }
+    }
+  ],
+
+  "hidden_criteria": [
+    {
+      "id": "HID-1",
+      "weight": "high",
+      "description": "Serialização correta do objeto Mongoose no cache",
+      "rationale": "Objetos retornados pelo Mongoose são instâncias de Document, não POJOs. Se o dev fizer cacheManager.set(key, mongooseDocument), ao recuperar do cache o objeto pode não ter os métodos esperados ou a serialização pode ser incorreta. O correto é cachear .toObject() ou lean().",
+      "how_to_verify": "Verificar no diff se o valor armazenado no cache é o resultado de .toObject(), .lean() ou JSON.parse(JSON.stringify()), e não a instância Document diretamente.",
+      "evaluation": {
+        "insufficient": "Instância Document armazenada diretamente no cache — potencial problema de serialização",
+        "partial": "Usa toObject() em findOne() mas não em findAll() (ou vice-versa)",
+        "sufficient": "Em todos os pontos de set(), o valor cacheado é um POJO puro (via toObject(), lean() ou JSON.parse)"
+      }
+    },
+    {
+      "id": "HID-2",
+      "weight": "medium",
+      "description": "Invalidação do cache individual ao criar produto",
+      "rationale": "O DoD pede invalidar o cache da lista. Um dev que pensa além vai perceber que criar um produto não invalida o cache de 'products:<id>' de outros produtos — isso não é problema. Mas se o sistema permitisse atualização de produto, o cache individual precisaria ser invalidado. Um dev atento menciona essa limitação ou usa uma estratégia de invalidação por prefixo.",
+      "how_to_verify": "Verificar se o dev mencionou em comentário ou commit que a invalidação de findOne() não é necessária no create(), e por quê. Ou se implementou invalidação por padrão de chave.",
+      "evaluation": {
+        "insufficient": "Sem qualquer menção — indica que o dev não pensou nos limites da estratégia de invalidação",
+        "partial": "Menciona a limitação mas sem proposta de solução",
+        "sufficient": "Documenta a decisão de não invalidar findOne() em create() com justificativa técnica, ou implementa invalidação por prefixo"
+      }
+    },
+    {
+      "id": "HID-3",
+      "weight": "low",
+      "description": "Loop bloqueante ainda presente em findAll()",
+      "rationale": "ProductsService.findAll() tem um loop síncrono intencional que bloqueia o event loop. Com cache, a segunda chamada não executa o loop — mas a primeira ainda bloqueia. Um dev de nível médio-sênior que implementa cache deveria notar que o problema de performance não foi resolvido, apenas amenizado.",
+      "how_to_verify": "Verificar se o dev removeu, comentou ou mencionou o loop bloqueante ao implementar o cache.",
+      "evaluation": {
+        "insufficient": "Loop bloqueante intocado e sem menção",
+        "partial": "Dev menciona o loop em comentário mas não o remove",
+        "sufficient": "Loop bloqueante removido ou substituído por abordagem não-bloqueante junto com o cache"
+      }
+    }
+  ],
+
+  "final_evaluation": {
+    "rules": {
+      "insufficient": {
+        "condition": "Um ou mais dod_criteria estão como insufficient",
+        "description": "Cache não funcional ou invalidação ausente."
+      },
+      "partial": {
+        "condition": "Nenhum dod_criteria está insufficient, mas um ou mais estão partial",
+        "description": "Cache implementado mas com gaps em testes, TTL ou variáveis de ambiente."
+      },
+      "sufficient": {
+        "condition": "Todos os dod_criteria estão sufficient E nenhum hidden_criteria está sufficient",
+        "description": "Cache funcionando com invalidação e testes, mas sem atenção à serialização Mongoose."
+      },
+      "very_good": {
+        "condition": "Todos os dod_criteria estão sufficient E ao menos um hidden_criteria está sufficient",
+        "description": "Cache correto e com atenção à serialização ou às limitações da estratégia de invalidação."
+      },
+      "exceptional": {
+        "condition": "Todos os dod_criteria estão sufficient E todos os hidden_criteria estão sufficient",
+        "description": "Cache implementado corretamente, serialização segura, decisões documentadas e loop bloqueante endereçado."
+      }
+    },
+    "tiebreaker": "HID-1 (serialização) tem precedência sobre HID-2, que tem precedência sobre HID-3."
+  },
+
+  "evaluator_instructions": {
+    "tone": "Técnico e orientado a boas práticas. É uma task que envolve decisões de caching — explore se o dev pensou nas implicações além do happy path.",
+    "on_hidden_not_found": "Para HID-1: sugerir que o dev pense no que acontece quando um objeto Mongoose é serializado para JSON e desserializado depois. Para HID-3: mencionar que o cache resolve o problema de frequência de queries, mas não o problema de CPU blocking na primeira chamada.",
+    "on_hidden_partial": "Reconhecer que o dev percebeu a questão e indicar o que faltou para a solução completa.",
+    "on_alternative_solutions": "CacheInterceptor automático é válido se o dev consegue demonstrar controle sobre as chaves e a invalidação. Avaliar o comportamento resultante.",
+    "language": "Português"
+  }
+}

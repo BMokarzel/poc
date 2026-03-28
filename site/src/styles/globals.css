@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'PP Fragmente Glare';
+  src: url('/fonts/PPFragmenteGlare-Regular.woff2') format('woff2'),
+       url('/fonts/PPFragmenteGlare-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  :root {
+    --color-primary: #FA5A50;
+    --color-primary-light: #FA8982;
+    --color-primary-xlight: #FAB8B4;
+    --color-primary-dark: #D94A41;
+    --color-secondary-xdark: #690037;
+    --color-secondary-dark: #802655;
+    --color-navy: #000050;
+    --color-ocean-light: #B4DCFA;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply antialiased;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/40 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/70;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white dark:bg-navy-mid border border-slate-100 dark:border-navy-light rounded-2xl p-5 shadow-sm;
+  }
+
+  .nav-link {
+    @apply px-4 py-2 rounded-lg text-sm font-medium text-navy-light dark:text-slate-300
+           hover:text-primary hover:bg-primary/10 transition-all duration-200;
+  }
+
+  .nav-link-active {
+    @apply text-primary bg-primary/10;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
+           transition-all duration-200 cursor-pointer;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-dark active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply btn hover:bg-slate-100 dark:hover:bg-navy-light text-navy dark:text-slate-200;
+  }
+
+  .section-title {
+    @apply font-display text-xl font-normal tracking-tight text-navy dark:text-white;
+  }
+
+  /* Task card expand animation */
+  .task-detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+  }
+  .task-detail.open {
+    grid-template-rows: 1fr;
+  }
+  .task-detail > div {
+    overflow: hidden;
+  }
+}

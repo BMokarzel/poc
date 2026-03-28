@@ -1,0 +1,138 @@
+{
+  "id": "T-002",
+  "name": "Novo módulo de banners no BFF",
+  "type": "FEATURE",
+  "difficulty": "easy",
+
+  "references": {
+    "pattern_file": null,
+    "functional_check": {
+      "description": "Verifica se GET /banners retorna lista com ao menos 2 itens e se GET /banners/id-inexistente retorna 404",
+      "command": "not_configured"
+    }
+  },
+
+  "dod_criteria": [
+    {
+      "id": "DOD-1",
+      "maps_to_dod": "GET /banners retorna array com ao menos 2 banners com campos id, title e type",
+      "how_to_verify": "No diff, verificar se BannersService contém ao menos 2 banners hardcoded com os campos id, title e type. Checar se BannersController expõe GET /banners chamando o service.",
+      "evaluation": {
+        "insufficient": "Endpoint não implementado, retorna menos de 2 banners, ou banners não possuem os campos id, title e type",
+        "partial": "Endpoint existe mas um dos campos obrigatórios (id, title ou type) está ausente em ao menos um banner",
+        "sufficient": "Endpoint retorna ao menos 2 banners com id, title e type presentes em todos"
+      }
+    },
+    {
+      "id": "DOD-2",
+      "maps_to_dod": "GET /banners/:id retorna o banner correto quando o id existe",
+      "how_to_verify": "Verificar se BannersService implementa lookup por id e se o controller expõe GET /banners/:id. Checar teste cobrindo o caso de id existente.",
+      "evaluation": {
+        "insufficient": "Endpoint não implementado ou não filtra por id (retorna sempre o mesmo)",
+        "partial": "Filtra por id mas há bug (ex: comparação de tipo errada entre string e número) ou sem teste",
+        "sufficient": "Retorna o banner correto para id existente, coberto por teste"
+      }
+    },
+    {
+      "id": "DOD-3",
+      "maps_to_dod": "GET /banners/:id com id inexistente retorna HTTP 404",
+      "how_to_verify": "Verificar se BannersService lança NotFoundException quando o banner não é encontrado. Checar teste cobrindo o caso 404.",
+      "evaluation": {
+        "insufficient": "Retorna 200 com null/undefined ou lança erro genérico sem status 404",
+        "partial": "Lança NotFoundException mas sem teste cobrindo esse caso",
+        "sufficient": "Lança NotFoundException e há teste que valida o status 404"
+      }
+    },
+    {
+      "id": "DOD-4",
+      "maps_to_dod": "BannersModule está registrado no AppModule",
+      "how_to_verify": "Verificar no diff se BannersModule foi adicionado ao array imports do AppModule.",
+      "evaluation": {
+        "insufficient": "BannersModule não registrado — endpoints retornariam 404",
+        "partial": "N/A",
+        "sufficient": "BannersModule presente no imports do AppModule"
+      }
+    },
+    {
+      "id": "DOD-5",
+      "maps_to_dod": "A estrutura de arquivos segue o padrão dos módulos existentes",
+      "how_to_verify": "Verificar se foram criados banners.module.ts, banners.controller.ts e banners.service.ts dentro de src/banners/.",
+      "evaluation": {
+        "insufficient": "Estrutura de arquivos diverge significativamente — ex: lógica no controller, arquivo único para tudo",
+        "partial": "Estrutura correta mas nomenclatura inconsistente com o padrão do projeto",
+        "sufficient": "Três arquivos corretos em src/banners/ com nomenclatura alinhada ao projeto"
+      }
+    },
+    {
+      "id": "DOD-6",
+      "maps_to_dod": "Há testes cobrindo os três cenários",
+      "how_to_verify": "Verificar se há testes para: (1) GET /banners retorna lista, (2) GET /banners/:id com id existente, (3) GET /banners/:id com id inexistente retorna 404.",
+      "evaluation": {
+        "insufficient": "Menos de dois cenários cobertos",
+        "partial": "Dois dos três cenários cobertos",
+        "sufficient": "Os três cenários cobertos e passando"
+      }
+    }
+  ],
+
+  "hidden_criteria": [
+    {
+      "id": "HID-1",
+      "weight": "high",
+      "description": "Tipagem do modelo de Banner",
+      "rationale": "O projeto usa TypeScript. Um dev que observa os DTOs existentes vai perceber que criar uma interface ou classe Banner (com id, title, type e demais campos) é o padrão esperado — evita any e torna o contrato explícito.",
+      "how_to_verify": "Verificar se foi criada uma interface, tipo ou classe Banner no módulo, e se BannersService a usa como tipo de retorno em vez de any ou object.",
+      "evaluation": {
+        "insufficient": "Nenhuma tipagem — service retorna any[]",
+        "partial": "Tipagem criada mas incompleta ou usada só em parte do módulo",
+        "sufficient": "Interface/tipo Banner criada e usada consistentemente no service e no controller"
+      }
+    },
+    {
+      "id": "HID-2",
+      "weight": "low",
+      "description": "Conteúdo dos banners coerente com o domínio do e-commerce",
+      "rationale": "O projeto é uma plataforma de compra. Banners hardcoded com conteúdo genérico (ex: 'banner1', 'test') indicam falta de atenção ao contexto. Um dev engajado cria banners plausíveis para o domínio.",
+      "how_to_verify": "Verificar se os banners hardcoded têm conteúdo coerente com e-commerce (ex: promoções, categorias, campanhas sazonais).",
+      "evaluation": {
+        "insufficient": "Banners com conteúdo placeholder genérico sem relação com o domínio",
+        "partial": "Um banner coerente e outro genérico",
+        "sufficient": "Todos os banners com conteúdo plausível para uma plataforma de compras"
+      }
+    }
+  ],
+
+  "final_evaluation": {
+    "rules": {
+      "insufficient": {
+        "condition": "Um ou mais dod_criteria estão como insufficient",
+        "description": "O módulo está incompleto — falta endpoint, 404, ou registro no AppModule."
+      },
+      "partial": {
+        "condition": "Nenhum dod_criteria está insufficient, mas um ou mais estão partial",
+        "description": "Módulo funcional mas com lacunas em testes ou detalhes de implementação."
+      },
+      "sufficient": {
+        "condition": "Todos os dod_criteria estão sufficient E nenhum hidden_criteria está sufficient",
+        "description": "Módulo completo e testado, seguindo a estrutura do projeto."
+      },
+      "very_good": {
+        "condition": "Todos os dod_criteria estão sufficient E ao menos um hidden_criteria está sufficient",
+        "description": "Módulo completo, testado e com atenção à tipagem ou ao domínio."
+      },
+      "exceptional": {
+        "condition": "Todos os dod_criteria estão sufficient E todos os hidden_criteria estão sufficient",
+        "description": "Módulo completo, tipado, testado e com conteúdo coerente com o domínio."
+      }
+    },
+    "tiebreaker": "Em caso de dúvida entre dois níveis adjacentes, hidden_criteria com weight 'high' têm precedência sobre 'low'."
+  },
+
+  "evaluator_instructions": {
+    "tone": "Encorajador. É uma task de estruturação — o objetivo principal é verificar se o dev entendeu o padrão NestJS do projeto. Reforce o que foi seguido corretamente.",
+    "on_hidden_not_found": "Sugerir que o dev observe como os demais módulos do projeto tipam seus dados e pense no contrato do serviço.",
+    "on_hidden_partial": "Reconhecer o esforço de tipagem mesmo que incompleto.",
+    "on_alternative_solutions": "Classe com @Schema em vez de interface simples também é válida — avaliar o resultado, não a ferramenta.",
+    "language": "Português"
+  }
+}

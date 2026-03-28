@@ -1,0 +1,26 @@
+{
+  "id": "PLAN-001",
+  "personId": "",
+  "version": "1.0",
+
+  "meta": {
+    "generatedAt": "",
+    "generatedBy": "evaluator",
+    "basedOnEvaluations": [],
+    "totalDurationWeeks": 0,
+    "startDate": "",
+    "endDate": ""
+  },
+
+  "diagnosis": {
+    "description": "",
+    "weaknesses": [],
+    "strengths": []
+  },
+
+  "topics": [],
+
+  "weeklyOverview": [],
+
+  "planStatus": "draft"
+}

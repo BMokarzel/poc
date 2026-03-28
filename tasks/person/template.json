@@ -1,0 +1,62 @@
+{
+  "id": "DEV-000",
+  "name": "",
+  "role": "",
+  "squad": "",
+  "startDate": "",
+
+  "skills": {
+    "description": "Score de 0 a 10 por tecnologia. Alimenta o radar chart do dashboard. Atualizado a cada avaliação via profileUpdate.",
+    "scores": {
+      "JavaScript":    0,
+      "Node.js":       0,
+      "NestJS":        0,
+      "OpenTelemetry": 0,
+      "Honeycomb":     0,
+      "Splunk":        0,
+      "MongoDB":       0,
+      "Redis":         0
+    }
+  },
+
+  "strengths": [
+    "Pontos fortes identificados ao longo das avaliações"
+  ],
+
+  "improvementAreas": [
+    "Pontos de melhoria identificados ao longo das avaliações"
+  ],
+
+  "patterns": [
+    {
+      "pattern": "Descrição do padrão comportamental observado",
+      "type": "positive | negative | neutral",
+      "status": "active | resolved",
+      "firstSeenAt": "T-000",
+      "lastSeenAt": "T-000"
+    }
+  ],
+
+  "evaluationHistory": [
+    {
+      "taskId": "T-000",
+      "evaluatedAt": "",
+      "finalLevel": "insufficient | partial | sufficient | very_good | exceptional",
+      "highlights": {
+        "strengths": [],
+        "gaps": []
+      }
+    }
+  ],
+
+  "studyPlan": {
+    "active": false,
+    "currentPlanFile": "./study/plan.json"
+  },
+
+  "meta": {
+    "version": "1.0",
+    "lastUpdatedAt": "",
+    "lastUpdatedBy": "evaluator"
+  }
+}
