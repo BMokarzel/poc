@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/layout/Navbar'
+import HomePage from './pages/HomePage'
 import TasksPage from './pages/TasksPage'
 import DashboardPage from './pages/DashboardPage'
 import TechnologiesPage from './pages/TechnologiesPage'
@@ -12,7 +13,9 @@ export default function App() {
         <Navbar />
         <main className="pt-16">
           <Routes>
-            <Route path="/" element={<TasksPage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/tasks/:project" element={<TasksPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/technologies" element={<TechnologiesPage />} />
             <Route path="/study" element={<StudyPage />} />

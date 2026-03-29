@@ -10,13 +10,16 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  projects: {
+    list: () => request('/projects'),
+  },
   tasks: {
-    list: () => request('/tasks'),
-    get: id => request(`/tasks/${id}`),
-    updateStatus: (id, status) =>
+    list: (project = 'backend') => request(`/tasks?project=${project}`),
+    get: (id, project = 'backend') => request(`/tasks/${id}?project=${project}`),
+    updateStatus: (id, status, project = 'backend') =>
       request(`/tasks/${id}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, project }),
       }),
   },
   person: {

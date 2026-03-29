@@ -10,34 +10,49 @@ const ROOT = path.resolve(__dirname, '../../')
 const TASKS_DIR = path.join(ROOT, 'tasks')
 const PERSON_FILE = path.join(TASKS_DIR, 'person', 'person.json')
 const PLAN_FILE = path.join(TASKS_DIR, 'person', 'study', 'plan.json')
-const STATUS_FILE = path.join(TASKS_DIR, 'status.json')
+
+const PROJECTS = ['backend', 'ios', 'android', 'react', 'react-native']
+const PROJECT_LABELS = {
+  backend: 'Backend',
+  ios: 'iOS',
+  android: 'Android',
+  react: 'React',
+  'react-native': 'React Native',
+}
+
 const app = express()
 app.use(cors())
 app.use(express.json())
 
 // --- helpers ---
 
-function readStatus() {
+function projectDir(project) {
+  return path.join(TASKS_DIR, project)
+}
+
+function readStatus(project) {
   try {
-    return JSON.parse(fs.readFileSync(STATUS_FILE, 'utf8'))
+    return JSON.parse(fs.readFileSync(path.join(projectDir(project), 'status.json'), 'utf8'))
   } catch {
     return {}
   }
 }
 
-function writeStatus(data) {
-  fs.writeFileSync(STATUS_FILE, JSON.stringify(data, null, 2))
+function writeStatus(project, data) {
+  fs.writeFileSync(path.join(projectDir(project), 'status.json'), JSON.stringify(data, null, 2))
 }
 
-function parseTasks() {
-  const statuses = readStatus()
-  const files = fs.readdirSync(TASKS_DIR).filter(f => /^T-\d+.*\.md$/.test(f))
+function parseTasks(project) {
+  const dir = projectDir(project)
+  if (!fs.existsSync(dir)) return []
+
+  const statuses = readStatus(project)
+  const files = fs.readdirSync(dir).filter(f => /^T-\d+.*\.md$/.test(f))
 
   return files.map(file => {
-    const raw = fs.readFileSync(path.join(TASKS_DIR, file), 'utf8')
+    const raw = fs.readFileSync(path.join(dir, file), 'utf8')
     const { data: frontmatter, content } = matter(raw)
 
-    // Parse sections from markdown content
     const sections = {}
     const sectionRegex = /^## (.+)$/gm
     let match
@@ -56,6 +71,7 @@ function parseTasks() {
     return {
       ...frontmatter,
       id: frontmatter.id || file.replace('.md', ''),
+      project,
       status: statuses[frontmatter.id] || 'todo',
       sections,
     }
@@ -64,9 +80,25 @@ function parseTasks() {
 
 // --- routes ---
 
-app.get('/api/tasks', (_req, res) => {
+app.get('/api/projects', (_req, res) => {
   try {
-    res.json(parseTasks())
+    const projects = PROJECTS.map(id => {
+      const dir = projectDir(id)
+      const taskCount = fs.existsSync(dir)
+        ? fs.readdirSync(dir).filter(f => /^T-\d+.*\.md$/.test(f)).length
+        : 0
+      return { id, label: PROJECT_LABELS[id], taskCount }
+    })
+    res.json(projects)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+app.get('/api/tasks', (req, res) => {
+  try {
+    const project = req.query.project || 'backend'
+    res.json(parseTasks(project))
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -74,7 +106,8 @@ app.get('/api/tasks', (_req, res) => {
 
 app.get('/api/tasks/:id', (req, res) => {
   try {
-    const tasks = parseTasks()
+    const project = req.query.project || 'backend'
+    const tasks = parseTasks(project)
     const task = tasks.find(t => t.id === req.params.id)
     if (!task) return res.status(404).json({ error: 'Not found' })
     res.json(task)
@@ -84,15 +117,15 @@ app.get('/api/tasks/:id', (req, res) => {
 })
 
 app.patch('/api/tasks/:id/status', (req, res) => {
-  const { status } = req.body
+  const { status, project = 'backend' } = req.body
   const valid = ['todo', 'in_progress', 'done']
   if (!valid.includes(status)) {
     return res.status(400).json({ error: 'Invalid status' })
   }
-  const statuses = readStatus()
+  const statuses = readStatus(project)
   statuses[req.params.id] = status
-  writeStatus(statuses)
-  res.json({ id: req.params.id, status })
+  writeStatus(project, statuses)
+  res.json({ id: req.params.id, status, project })
 })
 
 app.get('/api/person', (_req, res) => {

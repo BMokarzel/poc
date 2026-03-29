@@ -1,5 +1,13 @@
 Você vai criar o projeto base de onboarding técnico — o repositório que o dev receberá e sobre o qual as tasks serão construídas.
 
+**Estrutura multi-projeto:** este repositório suporta múltiplos projetos (backend, ios, android, react, react-native).
+Ao criar um novo projeto:
+- O código-fonte vai em `{projeto}/` na raiz (ex: `ios/`, `react/`)
+- As tasks vão em `tasks/{projeto}/T-NNN.md` (ex: `tasks/ios/T-001.md`)
+- Os critérios de avaliação vão em `tasks/{projeto}/criteria/T-NNN.eval.json`
+- O `tasks/{projeto}/status.json` controla o status das tasks do projeto
+- O diretório raiz do projeto já deve existir; se não existir, crie-o antes de popular
+
 Antes de gerar qualquer arquivo, faça as perguntas abaixo em uma única mensagem.
 Agrupe-as por bloco. Não comece a implementar até ter todas as respostas.
 
@@ -54,7 +62,9 @@ Apresente a estrutura ao usuário e aguarde confirmação antes de continuar.
 ### 2. Scaffolding base
 
 Crie os arquivos na seguinte ordem:
-1. `package.json` (ou `package.json` por serviço) com dependências exatas
+1. Crie o diretório `{projeto}/` na raiz se ainda não existir (ex: `ios/`, `react/`)
+2. Crie `tasks/{projeto}/` com `status.json` (`{}`) e `tasks/{projeto}/criteria/template.json` (cópia de `tasks/criteria/template.json`)
+3. `package.json` (ou `package.json` por serviço) com dependências exatas
 2. Arquivos de configuração: `tsconfig.json`, `.eslintrc`, `.prettierrc`, `jest.config.js`
 3. Estrutura de módulos vazia mas compilável (sem lógica de negócio ainda)
 4. Configuração de ambiente: `.env.example` com todas as variáveis necessárias

@@ -22,20 +22,37 @@ poc/
 │   └── commands/
 │       ├── task.md                     # /task skill — implements a T-NNN task with precision
 │       └── novo-projeto.md             # /novo-projeto skill — scaffolds a new onboarding project base
+├── backend/                            # Backend project (NestJS BFF + Core)
+├── ios/                                # iOS project (empty — populated per onboarding cycle)
+├── android/                            # Android project (empty — populated per onboarding cycle)
+├── react/                              # React project (empty — populated per onboarding cycle)
+├── react-native/                       # React Native project (empty — populated per onboarding cycle)
 ├── site/                               # Local dashboard (React + Vite + Express)
 │   ├── public/
 │   │   └── ref/
 │   │       └── GIF/                    # Only the 2 GIFs actually used by the site
 │   └── ...                             # See site-plan.md for full structure
 └── tasks/
-    ├── template.md                     # Template for creating new tasks
+    ├── template.md                     # Shared template for creating new tasks
     ├── criteria/
-    │   └── template.json               # Template for creating evaluation criteria (rubric)
+    │   └── template.json               # Shared template for evaluation rubrics
+    ├── backend/                        # Backend project tasks
+    │   ├── T-001.md … T-006.md         # Challenge definitions
+    │   ├── status.json                 # Task status registry for backend
+    │   └── criteria/
+    │       ├── template.json           # (copy of shared template)
+    │       └── T-001.eval.json …       # Evaluation rubrics for each task
+    ├── ios/                            # iOS project tasks (empty — status.json + criteria/template.json)
+    ├── android/                        # Android project tasks (empty)
+    ├── react/                          # React project tasks (empty)
+    ├── react-native/                   # React Native project tasks (empty)
     ├── evaluate/
-    │   └── prompts/
-    │       └── evaluator.prompt.md     # System + user prompt sent to Claude API per evaluation
+    │   ├── run.js                      # Interactive CLI: selects project+task, assembles prompt, calls API
+    │   ├── prompts/
+    │   │   └── evaluator.prompt.md     # System + user prompt sent to Claude API per evaluation
+    │   └── reports/                    # Archived evaluation reports and study plans
     └── person/
-        ├── person.json                 # Developer profile instance (starts empty)
+        ├── person.json                 # Developer profile instance (shared across all projects)
         ├── template.json               # Template for developer profile structure
         └── study/
             ├── template.json           # Template for study plan structure
@@ -144,14 +161,59 @@ poc/
   `// INTENTIONAL:` comments, and closes with a delivery summary mapping what is implemented vs
   what is left open for tasks.
 
+### 2026-03-29 — Multi-Project Architecture
+
+- Migrated `tasks/` to a multi-project structure. Each project (backend, ios, android, react,
+  react-native) has its own subdirectory under `tasks/` with isolated task files, evaluation
+  rubrics, and status tracking. Shared resources (template.md, criteria/template.json,
+  evaluate/, person/) remain at the `tasks/` root.
+
+- Moved all existing backend tasks (`T-001.md` through `T-006.md`) and their criteria files
+  into `tasks/backend/`. Created empty project directories for ios, android, react, and
+  react-native — each with an empty `status.json` and a copy of the criteria template.
+
+- Created root-level project directories (`ios/`, `android/`, `react/`, `react-native/`) to
+  receive project code when each onboarding cycle is scaffolded. `backend/` already existed.
+
+- Created `tasks/evaluate/run.js` — interactive Node.js CLI for multi-project evaluation.
+  Prompts the user to select one or more projects and tasks, collects git diff + test output,
+  assembles the evaluator prompt from `evaluator.prompt.md`, and either calls the Anthropic API
+  (if `ANTHROPIC_API_KEY` is set) or prints the assembled prompt for manual use.
+  On successful API evaluation: updates `person.json`, updates `tasks/{project}/status.json`,
+  generates study plan if needed, and archives reports to `evaluate/reports/`.
+
+- Updated site routing for multi-project support:
+  - `/` → new `HomePage` with "Trailblazers Onboarding" title and 5 project cards.
+  - `/tasks` and `/tasks/:project` → `TasksPage` with project tab navigation.
+  - Clicking a project card navigates directly to `/tasks/{project}`.
+  - `TaskBoard` now accepts a `project` prop; `useTasks(project)` fetches the correct tasks.
+
+- Updated `site/server/index.js`:
+  - Added `GET /api/projects` — returns project list with task counts.
+  - `GET /api/tasks?project=backend` — reads from `tasks/{project}/`.
+  - `PATCH /api/tasks/:id/status` — reads `project` from request body.
+  - Status file is now per-project (`tasks/{project}/status.json`).
+
+- Updated `.claude/commands/task.md` — skill now expects `{projeto} {ID}` or `{projeto}/{ID}`
+  as argument (e.g., `/task backend T-001`). Falls back to `backend` if no project specified.
+  Paths updated to `tasks/{projeto}/{ID}.md` and `tasks/{projeto}/criteria/{ID}.eval.json`.
+
+- Updated `.claude/commands/novo-projeto.md` — added multi-project scaffolding instructions:
+  new project code goes in `{projeto}/` at root; tasks go in `tasks/{projeto}/`; criteria in
+  `tasks/{projeto}/criteria/`.
+
 ---
 
 ## Pattern Conventions
 
-- Each new task (`T-NNN.md`) must follow `tasks/template.md` exactly — frontmatter included.
-- Each task must have a paired `tasks/criteria/T-NNN.eval.json` following `criteria/template.json`.
+- Tasks are project-scoped: `tasks/{project}/T-NNN.md`. Each project has its own `status.json`.
+- Each new task must have a paired `tasks/{project}/criteria/T-NNN.eval.json`.
+- `tasks/template.md` and `tasks/criteria/template.json` are shared authoring references — do
+  not store evaluation rubrics at the `tasks/criteria/` root (those belong in the project subdir).
 - `tasks/evaluate/prompts/evaluator.prompt.md` is the single prompt contract — the CLI reads it
   verbatim; only placeholders change per run.
+- `person.json` is shared across all projects — evaluation history accumulates regardless of
+  which project the task belongs to. Skills are technology-scoped, not project-scoped.
 - `person.json` accumulates `profileUpdate.patterns` from each evaluation report and is passed
   back as `{{PROFILE_JSON}}` on subsequent evaluations.
 - `domain` entries in task files act as ownership markers — cross-task changes to those paths
@@ -161,7 +223,7 @@ poc/
 - `person.json` is the single source of truth for the site's radar chart and dashboard.
   The CLI applies `skillDelta` and `profileUpdate` after each evaluation.
 - `study/plan.json` is overwritten (never appended) when a new plan is generated.
-  Previous plans should be archived by the CLI to `evaluate/reports/` before overwriting.
+  Previous plans are archived by the CLI to `evaluate/reports/` before overwriting.
 - Site (`site/`) runs on `npm run dev`: Vite (5173) + Express API (3001) via concurrently.
   See `site-plan.md` for full implementation details.
 - Site static assets live in `site/public/` — only assets actually referenced in source go there.

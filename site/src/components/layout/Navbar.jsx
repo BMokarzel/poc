@@ -3,10 +3,11 @@ import ThemeToggle from '../ui/ThemeToggle'
 import LogoImage from '../ui/LogoImage'
 
 const LINKS = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/',          label: 'Tasks',     end: true },
+  { to: '/',             label: 'Home',         end: true },
+  { to: '/tasks',        label: 'Tasks' },
+  { to: '/dashboard',    label: 'Dashboard' },
   { to: '/technologies', label: 'Technologies' },
-  { to: '/study',     label: 'Study' },
+  { to: '/study',        label: 'Study' },
 ]
 
 export default function Navbar() {

@@ -3,767 +3,1025 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Trailblazer Onboarding — Apresentação</title>
+<title>Trailblazers Onboarding — Apresentação</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --primary:       #FA5A50;
-    --primary-light: #FA8982;
-    --primary-dark:  #D94A41;
-    --primary-xdark: #A63832;
-    --navy:          #000050;
-    --navy-mid:      #14142B;
-    --navy-light:    #1E1E38;
-    --navy-border:   #2A2A4A;
-    --blue-light:    #B4DCFA;
-    --text:          #F0F0FF;
-    --text-muted:    #B4DCFA;
-    --purple:        #802655;
-    --purple-light:  #994D74;
-  }
+:root {
+  /* Paleta extraída dos slides originais */
+  --bg:          #f0f5f4;
+  --bg-card:     #ffffff;
+  --navy:        #000050;
+  --navy-mid:    #1a2332;
+  --navy-light:  #14142b;
+  --red:         #fa5a50;
+  --red-soft:    #e07a5f;
+  --blue:        #6c9bd1;
+  --blue-light:  #b4dcfa;
+  --green:       #02c39a;
+  --grey:        #4a5568;
+  --grey-light:  #8a9ba8;
+  --border:      #dde4e2;
+  /* Section dividers */
+  --wine:        #690037;
+  --pink:        #fab9ff;
+  /* Cover */
+  --cover-bg:    #000050;
+}
 
-  html, body {
-    width: 100%; height: 100%;
-    background: var(--navy);
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text);
-    overflow: hidden;
-  }
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--navy);
+  overflow: hidden;
+}
 
-  /* ── DECK ── */
-  .deck { width: 100%; height: 100%; position: relative; }
+/* ────────────────────────────
+   DECK & SLIDE
+──────────────────────────── */
+.deck { width: 100%; height: 100%; position: relative; }
 
-  .slide {
-    position: absolute; inset: 0;
-    display: none;
-    flex-direction: column;
-    padding: 64px 80px;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-  }
-  .slide.active { display: flex; opacity: 1; }
+.slide {
+  position: absolute; inset: 0;
+  display: none; flex-direction: column;
+  background: var(--bg);
+  opacity: 0;
+  transition: opacity .28s ease;
+}
+.slide.active { display: flex; opacity: 1; }
 
-  /* ── NAV ── */
-  .nav {
-    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 16px;
-    background: rgba(20,20,43,0.85);
-    border: 1px solid var(--navy-border);
-    border-radius: 99px;
-    padding: 10px 20px;
-    backdrop-filter: blur(8px);
-    z-index: 100;
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .nav button {
-    background: none; border: none; cursor: pointer;
-    color: var(--primary); font-size: 18px; line-height: 1;
-    padding: 2px 8px; border-radius: 6px;
-    transition: background 0.15s;
-  }
-  .nav button:hover { background: rgba(250,90,80,0.15); }
-  .nav button:disabled { color: var(--navy-border); cursor: default; background: none; }
-  #slide-counter { min-width: 52px; text-align: center; }
+/* Slide types */
+.slide-cover { background: var(--cover-bg); }
+.slide-divider { background: var(--wine); }
 
-  /* ── COMPONENTS ── */
-  .label {
-    display: inline-flex; align-items: center;
-    padding: 4px 12px; border-radius: 99px;
-    font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-  }
-  .label-red   { background: rgba(250,90,80,0.18); color: var(--primary); }
-  .label-blue  { background: rgba(180,220,250,0.15); color: var(--blue-light); }
-  .label-purple{ background: rgba(128,38,85,0.3); color: #C785CC; }
-  .label-green { background: rgba(80,200,120,0.15); color: #7DEFA1; }
+/* Safe area */
+.safe {
+  flex: 1;
+  padding: 52px 80px 44px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-  .card {
-    background: var(--navy-light);
-    border: 1px solid var(--navy-border);
-    border-radius: 14px;
-    padding: 20px 24px;
-  }
+/* ────────────────────────────
+   PROGRESS + NAV
+──────────────────────────── */
+.bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: rgba(0,0,80,.08); z-index: 99; }
+.bar-fill { height: 100%; background: var(--red); transition: width .3s ease; }
 
-  .slide-title {
-    font-size: 13px; font-weight: 600; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--primary);
-    margin-bottom: 12px;
-  }
-  .slide-heading {
-    font-size: 38px; font-weight: 300; line-height: 1.18;
-    color: var(--text);
-    margin-bottom: 8px;
-  }
-  .slide-heading strong { font-weight: 600; color: var(--primary); }
-  .slide-sub {
-    font-size: 16px; color: var(--text-muted); line-height: 1.6;
-    max-width: 680px; margin-bottom: 40px;
-  }
+.nav {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--border);
+  border-radius: 99px; padding: 7px 18px;
+  backdrop-filter: blur(12px); z-index: 100;
+  font-size: 12px; color: var(--grey);
+  box-shadow: 0 2px 16px rgba(0,0,80,.08);
+  user-select: none;
+}
+.nav button {
+  background: none; border: none; cursor: pointer;
+  color: var(--red); font-size: 20px; line-height: 1;
+  padding: 0 4px; border-radius: 5px;
+  transition: background .15s;
+}
+.nav button:hover { background: rgba(250,90,80,.1); }
+.nav button:disabled { color: var(--border); cursor: default; background: none; }
+#ctr { min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
 
-  /* ── SLIDE-SPECIFIC ── */
+/* ────────────────────────────
+   SHARED COMPONENTS
+──────────────────────────── */
+.eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--red);
+  margin-bottom: 8px;
+}
+.eyebrow-light { color: rgba(250,185,255,.7); }
 
-  /* 1 — Cover */
-  #s1 {
-    justify-content: center;
-    background: radial-gradient(ellipse at 30% 40%, rgba(250,90,80,0.07) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 70%, rgba(180,220,250,0.05) 0%, transparent 50%),
-                var(--navy);
-  }
-  #s1 .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
-  #s1 .logo-mark {
-    width: 44px; height: 44px; border-radius: 10px;
-    background: var(--primary);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 16px; color: white; letter-spacing: -1px;
-  }
-  #s1 .logo-text { font-size: 18px; font-weight: 600; }
-  #s1 .logo-text span { color: var(--text-muted); font-weight: 400; font-size: 14px; display: block; }
-  #s1 h1 { font-size: 56px; font-weight: 300; line-height: 1.1; margin-bottom: 20px; }
-  #s1 h1 strong { font-weight: 700; color: var(--primary); display: block; }
-  #s1 p { font-size: 18px; color: var(--text-muted); max-width: 600px; line-height: 1.6; margin-bottom: 48px; }
-  #s1 .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.heading {
+  font-size: 38px; font-weight: 300; line-height: 1.12;
+  color: var(--navy); margin-bottom: 6px;
+}
+.heading strong { font-weight: 700; color: var(--red); }
+.heading-light  { color: #fff; }
+.heading-light strong { color: var(--pink); }
 
-  /* 2 — Problema */
-  #s2 .problems { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 8px; }
-  #s2 .problem-card {
-    background: var(--navy-light); border: 1px solid var(--navy-border);
-    border-radius: 14px; padding: 24px;
-  }
-  #s2 .problem-card .icon { font-size: 28px; margin-bottom: 12px; }
-  #s2 .problem-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
-  #s2 .problem-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-  #s2 .vs {
-    margin-top: 28px; padding: 16px 24px;
-    background: rgba(250,90,80,0.08); border: 1px solid rgba(250,90,80,0.2);
-    border-radius: 10px; font-size: 14px; color: var(--text-muted);
-    display: flex; align-items: center; gap: 12px;
-  }
-  #s2 .vs strong { color: var(--primary); }
+.sub {
+  font-size: 15px; color: var(--grey); line-height: 1.65;
+  max-width: 680px; margin-bottom: 26px;
+}
+.sub-light { color: rgba(250,185,255,.75); }
 
-  /* 3 — Solução */
-  #s3 .flow {
-    display: flex; align-items: center; gap: 0;
-    margin-top: 12px; margin-bottom: 36px;
-    overflow-x: auto; padding-bottom: 4px;
-  }
-  #s3 .flow-node {
-    background: var(--navy-light); border: 1px solid var(--navy-border);
-    border-radius: 12px; padding: 16px 20px;
-    text-align: center; min-width: 130px; flex-shrink: 0;
-  }
-  #s3 .flow-node .fn-icon { font-size: 24px; margin-bottom: 6px; }
-  #s3 .flow-node .fn-label { font-size: 12px; font-weight: 600; color: var(--text); }
-  #s3 .flow-node .fn-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-  #s3 .flow-arrow {
-    color: var(--primary); font-size: 20px; padding: 0 8px; flex-shrink: 0;
-  }
-  #s3 .flow-node.highlight {
-    border-color: var(--primary); background: rgba(250,90,80,0.1);
-  }
-  #s3 .flow-node.highlight .fn-label { color: var(--primary); }
-  #s3 .callouts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-  #s3 .callout {
-    background: var(--navy-light); border: 1px solid var(--navy-border);
-    border-radius: 10px; padding: 16px 18px;
-    font-size: 13px; color: var(--text-muted); line-height: 1.5;
-  }
-  #s3 .callout strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 14px; }
+.pill {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+}
+.pill-red    { background: rgba(250,90,80,.12);  color: var(--red); }
+.pill-blue   { background: rgba(108,155,209,.13); color: var(--blue); }
+.pill-green  { background: rgba(2,195,154,.12);  color: var(--green); }
+.pill-grey   { background: rgba(74,85,104,.1);   color: var(--grey); }
+.pill-pink   { background: rgba(250,185,255,.18); color: var(--pink); }
+.pill-wine   { background: rgba(105,0,55,.1);    color: var(--wine); }
 
-  /* 4 — Task */
-  #s4 .task-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  #s4 .task-md {
-    background: var(--navy-mid); border: 1px solid var(--navy-border);
-    border-radius: 14px; padding: 24px; font-size: 13px; line-height: 1.7;
-    font-family: monospace;
-  }
-  #s4 .task-md .fm { color: #7DEFA1; }
-  #s4 .task-md .sec { color: var(--primary); font-weight: 700; margin-top: 10px; }
-  #s4 .task-md .txt { color: var(--text-muted); }
-  #s4 .task-md .dod { color: var(--blue-light); }
-  #s4 .principles { display: flex; flex-direction: column; gap: 14px; justify-content: center; }
-  #s4 .principle {
-    background: var(--navy-light); border: 1px solid var(--navy-border);
-    border-radius: 10px; padding: 14px 18px;
-    display: flex; gap: 12px; align-items: flex-start;
-  }
-  #s4 .principle .p-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
-  #s4 .principle h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-  #s4 .principle p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.card-red   { border-color: rgba(250,90,80,.35); background: rgba(250,90,80,.04); }
+.card-blue  { border-color: rgba(108,155,209,.3); background: rgba(108,155,209,.04); }
+.card-green { border-color: rgba(2,195,154,.3);  background: rgba(2,195,154,.04); }
 
-  /* 5 — Rubrica */
-  #s5 .rubric-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  #s5 .levels { display: flex; flex-direction: column; gap: 8px; }
-  #s5 .level {
-    border-radius: 10px; padding: 12px 16px;
-    display: flex; align-items: center; gap: 12px;
-    border: 1px solid transparent;
-  }
-  #s5 .level .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  #s5 .level .lv-name { font-size: 13px; font-weight: 600; min-width: 110px; }
-  #s5 .level .lv-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
-  #s5 .level-1 { background: rgba(105,0,55,0.25); border-color: rgba(105,0,55,0.4); }
-  #s5 .level-1 .dot { background: #690037; } #s5 .level-1 .lv-name { color: #e05590; }
-  #s5 .level-2 { background: rgba(128,38,85,0.2); border-color: rgba(128,38,85,0.35); }
-  #s5 .level-2 .dot { background: #802655; } #s5 .level-2 .lv-name { color: #C785CC; }
-  #s5 .level-3 { background: rgba(250,137,130,0.15); border-color: rgba(250,137,130,0.3); }
-  #s5 .level-3 .dot { background: #FA8982; } #s5 .level-3 .lv-name { color: #FA8982; }
-  #s5 .level-4 { background: rgba(250,90,80,0.15); border-color: rgba(250,90,80,0.35); }
-  #s5 .level-4 .dot { background: #FA5A50; } #s5 .level-4 .lv-name { color: #FA5A50; }
-  #s5 .level-5 { background: rgba(217,74,65,0.2); border-color: rgba(217,74,65,0.4); }
-  #s5 .level-5 .dot { background: #D94A41; } #s5 .level-5 .lv-name { color: #ff9a95; }
-  #s5 .criteria-types { display: flex; flex-direction: column; gap: 14px; }
-  #s5 .ct { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 12px; padding: 18px 20px; }
-  #s5 .ct h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-  #s5 .ct p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-  #s5 .ct .ct-tag { display: inline-block; margin-bottom: 8px; }
+code {
+  font-family: 'SF Mono','Fira Code','Consolas',monospace;
+  font-size: .85em;
+  background: rgba(0,0,80,.06);
+  padding: 1px 5px; border-radius: 4px;
+  color: var(--navy-mid);
+}
 
-  /* 6 — Evaluator */
-  #s6 .eval-layout { display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px; }
-  #s6 .inputs, #s6 .outputs { display: flex; flex-direction: column; gap: 10px; }
-  #s6 .io-item {
-    background: var(--navy-light); border: 1px solid var(--navy-border);
-    border-radius: 10px; padding: 12px 16px;
-    display: flex; gap: 10px; align-items: flex-start;
-  }
-  #s6 .io-item .io-icon { font-size: 18px; flex-shrink: 0; }
-  #s6 .io-item h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-  #s6 .io-item p { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
-  #s6 .arrow-col {
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px; color: var(--primary);
-  }
-  #s6 .steps { margin-top: 20px; display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
-  #s6 .step {
-    background: var(--navy-light); border: 1px solid var(--navy-border);
-    border-radius: 8px; padding: 10px 8px; text-align: center;
-    font-size: 11px; color: var(--text-muted);
-  }
-  #s6 .step strong { display: block; color: var(--primary); font-size: 12px; margin-bottom: 4px; }
+/* ════════════════════════════════════════
+   SLIDE 1 — COVER
+════════════════════════════════════════ */
+#s1 .safe {
+  justify-content: flex-end;
+  padding-bottom: 80px;
+}
+#s1 .top-bar {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 28px 80px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+#s1 .logo { display: flex; align-items: center; gap: 10px; }
+#s1 .logo-mark {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 11px; color: #fff; letter-spacing: -.5px;
+}
+#s1 .logo-name { font-size: 15px; font-weight: 600; color: #fff; }
+#s1 .logo-name span { color: rgba(255,255,255,.5); font-weight: 400; font-size: 13px; display: block; }
+#s1 .date { font-size: 12px; color: rgba(255,255,255,.35); }
+#s1 h1 {
+  font-size: 62px; font-weight: 300; line-height: 1.05;
+  color: #fff; margin-bottom: 18px; max-width: 860px;
+}
+#s1 h1 strong { font-weight: 700; color: var(--red); display: block; }
+#s1 p { font-size: 17px; color: rgba(255,255,255,.6); max-width: 580px; line-height: 1.7; margin-bottom: 36px; }
+#s1 .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+/* decorative line */
+#s1::before {
+  content: ''; position: absolute; left: 80px; top: 0; bottom: 0;
+  width: 1px; background: linear-gradient(to bottom, transparent, var(--red) 30%, var(--red) 70%, transparent);
+  opacity: .3;
+}
 
-  /* 7 — Profile */
-  #s7 .profile-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; }
-  #s7 .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  #s7 .skill-row {
-    background: var(--navy-light); border: 1px solid var(--navy-border);
-    border-radius: 8px; padding: 10px 14px;
-  }
-  #s7 .skill-row .sk-name { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-  #s7 .skill-row .sk-bar { height: 5px; background: var(--navy-border); border-radius: 99px; overflow: hidden; }
-  #s7 .skill-row .sk-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width 1s ease; }
-  #s7 .skill-row .sk-score { font-size: 12px; font-weight: 600; color: var(--text); float: right; margin-top: -18px; }
-  #s7 .profile-right { display: flex; flex-direction: column; gap: 12px; }
-  #s7 .profile-section { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 12px; padding: 16px 18px; }
-  #s7 .profile-section h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
-  #s7 .pattern {
-    font-size: 12px; padding: 6px 10px; border-radius: 6px; margin-bottom: 6px; line-height: 1.4;
-  }
-  #s7 .pattern-neg { background: rgba(250,90,80,0.1); color: var(--primary-light); border-left: 3px solid var(--primary); }
-  #s7 .pattern-pos { background: rgba(125,239,161,0.08); color: #7DEFA1; border-left: 3px solid #7DEFA1; }
-  #s7 .history-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 0; border-bottom: 1px solid var(--navy-border); font-size: 12px;
-  }
-  #s7 .history-row:last-child { border-bottom: none; }
-  #s7 .history-row .tid { color: var(--text-muted); }
-  #s7 .lv-sufficient { color: #FA8982; }
-  #s7 .lv-very_good { color: #FA5A50; }
+/* ════════════════════════════════════════
+   SLIDE 2 — PROBLEMA
+════════════════════════════════════════ */
+#s2 .cols3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+#s2 .pcol { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 22px 20px; }
+#s2 .pcol-icon { font-size: 28px; margin-bottom: 10px; }
+#s2 .pcol h3 { font-size: 14px; font-weight: 600; margin-bottom: 7px; color: var(--navy); }
+#s2 .pcol p  { font-size: 12.5px; color: var(--grey); line-height: 1.65; }
+#s2 .insight {
+  padding: 14px 20px;
+  background: rgba(250,90,80,.05); border: 1px solid rgba(250,90,80,.2);
+  border-radius: 10px; font-size: 13.5px; color: var(--grey);
+  display: flex; align-items: flex-start; gap: 12px; line-height: 1.65;
+}
+#s2 .insight strong { color: var(--navy); }
 
-  /* 8 — Dashboard screenshot */
-  #s8 .screen-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
-  #s8 .screen-card { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 14px; overflow: hidden; }
-  #s8 .screen-card img { width: 100%; display: block; }
-  #s8 .screen-card .screen-label { padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
-  #s8 .screen-highlight { border-color: var(--primary); }
-  #s8 .screen-highlight .screen-label { color: var(--primary); }
+/* ════════════════════════════════════════
+   SLIDE 3 — SOLUÇÃO
+════════════════════════════════════════ */
+#s3 .cycle {
+  display: flex; align-items: stretch; gap: 0;
+  margin-bottom: 20px; margin-top: 4px;
+}
+#s3 .node {
+  flex: 1;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 12px;
+  text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+#s3 .node.hi { border-color: rgba(250,90,80,.4); background: rgba(250,90,80,.05); }
+#s3 .arrow { padding: 0 6px; display: flex; align-items: center; color: var(--red); font-size: 16px; flex-shrink: 0; }
+#s3 .ni { font-size: 22px; margin-bottom: 5px; }
+#s3 .nl { font-size: 12px; font-weight: 600; color: var(--navy); }
+#s3 .node.hi .nl { color: var(--red); }
+#s3 .ns { font-size: 10.5px; color: var(--grey-light); margin-top: 2px; }
+#s3 .callouts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+#s3 .co {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  font-size: 12.5px; color: var(--grey); line-height: 1.6;
+}
+#s3 .co strong { color: var(--navy); display: block; margin-bottom: 4px; font-size: 13px; }
 
-  /* 9 — Valor */
-  #s9 .value-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  #s9 .persona { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 14px; padding: 28px; }
-  #s9 .persona .p-role { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 10px; }
-  #s9 .persona h3 { font-size: 20px; font-weight: 600; margin-bottom: 16px; line-height: 1.3; }
-  #s9 .persona ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-  #s9 .persona ul li { font-size: 13px; color: var(--text-muted); display: flex; gap: 10px; line-height: 1.5; }
-  #s9 .persona ul li::before { content: '→'; color: var(--primary); flex-shrink: 0; }
-  #s9 .persona-dev { border-top: 3px solid var(--primary); }
-  #s9 .persona-mgr { border-top: 3px solid var(--blue-light); }
-  #s9 .persona-mgr h3 { color: var(--blue-light); }
+/* ════════════════════════════════════════
+   SLIDE 4 — DIVISÓRIA: COMPONENTES
+════════════════════════════════════════ */
+#s4 .safe { justify-content: center; align-items: flex-start; }
+#s4 .dv-num {
+  font-size: 120px; font-weight: 700; line-height: 1;
+  color: rgba(250,185,255,.12); margin-bottom: -16px;
+}
+#s4 .dv-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: rgba(250,185,255,.55);
+  margin-bottom: 16px;
+}
+#s4 h2 {
+  font-size: 50px; font-weight: 300; line-height: 1.1; color: #fff;
+  max-width: 640px; margin-bottom: 28px;
+}
+#s4 h2 strong { font-weight: 700; color: var(--pink); display: block; }
+#s4 .items { display: flex; flex-direction: column; gap: 10px; }
+#s4 .dv-item {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(250,185,255,.07);
+  border: 1px solid rgba(250,185,255,.15);
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 14px; font-weight: 500; color: rgba(255,255,255,.75);
+  max-width: 480px;
+}
+#s4 .dv-item span { font-size: 18px; }
+#s4 .dv-item .num { font-size: 11px; color: rgba(250,185,255,.5); min-width: 18px; }
 
-  /* 10 — Next */
-  #s10 .next-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 8px; }
-  #s10 .next-item { background: var(--navy-light); border: 1px solid var(--navy-border); border-radius: 12px; padding: 20px 22px; }
-  #s10 .next-item .phase { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
-  #s10 .next-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
-  #s10 .next-item ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-  #s10 .next-item ul li { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; line-height: 1.5; }
-  #s10 .next-item ul li::before { content: '·'; color: var(--primary); font-size: 16px; line-height: 1.2; }
-  #s10 .summary {
-    margin-top: 28px; padding: 18px 24px;
-    background: rgba(250,90,80,0.07); border: 1px solid rgba(250,90,80,0.2);
-    border-radius: 10px; font-size: 14px; color: var(--text-muted); line-height: 1.6;
-    text-align: center;
-  }
-  #s10 .summary strong { color: var(--primary); }
+/* ════════════════════════════════════════
+   SLIDE 5 — A TASK
+════════════════════════════════════════ */
+#s5 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+#s5 .code-block {
+  background: var(--navy-light); border-radius: 14px;
+  overflow: hidden;
+}
+#s5 .cb-bar {
+  background: var(--navy-mid); padding: 8px 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+#s5 .cb-dot { width: 9px; height: 9px; border-radius: 50%; }
+#s5 .cb-filename { font-size: 11px; color: rgba(255,255,255,.35); margin-left: 8px; font-family: monospace; }
+#s5 .cb-body {
+  padding: 14px 18px;
+  font-family: 'SF Mono','Fira Code','Consolas',monospace;
+  font-size: 11.5px; line-height: 1.8;
+}
+#s5 .fm  { color: #02c39a; }
+#s5 .sec { color: #fa5a50; font-weight: 600; }
+#s5 .txt { color: #8a9ba8; }
+#s5 .dod { color: #b4dcfa; }
+#s5 .dom { color: #6c9bd1; }
+#s5 .principles { display: flex; flex-direction: column; gap: 11px; justify-content: center; }
+#s5 .pp {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 16px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+#s5 .pp-icon { font-size: 18px; flex-shrink: 0; }
+#s5 .pp h4  { font-size: 12.5px; font-weight: 600; margin-bottom: 3px; color: var(--navy); }
+#s5 .pp p   { font-size: 11.5px; color: var(--grey); line-height: 1.55; }
+
+/* ════════════════════════════════════════
+   SLIDE 6 — A RUBRICA
+════════════════════════════════════════ */
+#s6 .two-col { display: grid; grid-template-columns: 1fr 1.05fr; gap: 22px; }
+#s6 .levels  { display: flex; flex-direction: column; gap: 7px; }
+#s6 .lv {
+  border-radius: 9px; padding: 11px 14px;
+  display: flex; align-items: center; gap: 11px;
+  border: 1px solid transparent;
+}
+#s6 .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+#s6 .lv-name { font-size: 12.5px; font-weight: 600; min-width: 100px; }
+#s6 .lv-desc { font-size: 12px; color: var(--grey); line-height: 1.4; }
+#s6 .l1 { background: rgba(105,0,55,.08);  border-color: rgba(105,0,55,.2); }
+#s6 .l1 .dot { background: var(--wine); }   #s6 .l1 .lv-name { color: #a0004a; }
+#s6 .l2 { background: rgba(128,38,85,.07); border-color: rgba(128,38,85,.18); }
+#s6 .l2 .dot { background: #802655; }       #s6 .l2 .lv-name { color: #802655; }
+#s6 .l3 { background: rgba(250,137,130,.08); border-color: rgba(250,137,130,.2); }
+#s6 .l3 .dot { background: #e07a5f; }       #s6 .l3 .lv-name { color: #c05840; }
+#s6 .l4 { background: rgba(250,90,80,.07); border-color: rgba(250,90,80,.2); }
+#s6 .l4 .dot { background: var(--red); }    #s6 .l4 .lv-name { color: var(--red); }
+#s6 .l5 { background: rgba(2,195,154,.07); border-color: rgba(2,195,154,.2); }
+#s6 .l5 .dot { background: var(--green); }  #s6 .l5 .lv-name { color: #019a79; }
+#s6 .criteria-col { display: flex; flex-direction: column; gap: 11px; }
+#s6 .ct { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 15px 18px; }
+#s6 .ct .tag { display: inline-block; margin-bottom: 7px; }
+#s6 .ct h4 { font-size: 12.5px; font-weight: 600; margin-bottom: 5px; color: var(--navy); }
+#s6 .ct p  { font-size: 11.5px; color: var(--grey); line-height: 1.55; }
+
+/* ════════════════════════════════════════
+   SLIDE 7 — O PROMPT
+════════════════════════════════════════ */
+#s7 .two-col { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; }
+#s7 .prompt-stack { display: flex; flex-direction: column; gap: 10px; }
+#s7 .pblock {
+  background: var(--navy-light); border-radius: 12px; overflow: hidden;
+}
+#s7 .pb-header {
+  background: var(--navy-mid); padding: 6px 14px;
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+}
+#s7 .pb-body {
+  padding: 12px 16px;
+  font-family: 'SF Mono','Fira Code',monospace; font-size: 11px; line-height: 1.75;
+}
+#s7 .kw { color: #fa5a50; font-weight: 600; }
+#s7 .co { color: rgba(255,255,255,.55); }
+#s7 .ph { color: #fab9ff; font-style: italic; }
+#s7 .cm { color: rgba(255,255,255,.25); }
+#s7 .right-col { display: flex; flex-direction: column; gap: 10px; }
+#s7 .io-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; display: flex; gap: 10px; }
+#s7 .io-icon { font-size: 17px; flex-shrink: 0; }
+#s7 .io-item h4 { font-size: 12.5px; font-weight: 600; margin-bottom: 2px; color: var(--navy); }
+#s7 .io-item p  { font-size: 11.5px; color: var(--grey); line-height: 1.45; }
+#s7 .rule {
+  padding: 11px 16px; border-radius: 9px;
+  background: rgba(250,90,80,.05); border: 1px solid rgba(250,90,80,.2);
+  font-size: 12px; color: var(--grey); line-height: 1.55;
+}
+#s7 .rule strong { color: var(--navy); }
+
+/* ════════════════════════════════════════
+   SLIDE 8 — O CLI
+════════════════════════════════════════ */
+#s8 .two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+#s8 .terminal {
+  background: #0e0e1f; border: 1px solid #1a1a35;
+  border-radius: 14px; overflow: hidden;
+}
+#s8 .term-bar {
+  background: #151530; padding: 8px 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+#s8 .td { width: 10px; height: 10px; border-radius: 50%; }
+#s8 .term-bar span { font-size: 11px; color: rgba(255,255,255,.2); margin-left: 8px; font-family: monospace; }
+#s8 .tb {
+  padding: 14px 18px;
+  font-family: 'SF Mono','Fira Code',monospace; font-size: 11.5px; line-height: 1.8;
+}
+#s8 .tp { color: #02c39a; }
+#s8 .tc { color: #e8e8f0; }
+#s8 .to { color: #6a7a8a; }
+#s8 .tq { color: #b4dcfa; }
+#s8 .ti { color: #fa5a50; }
+#s8 .tok { color: #02c39a; }
+#s8 .tw { color: #f5a623; }
+#s8 .steps { display: flex; flex-direction: column; gap: 9px; justify-content: center; }
+#s8 .step {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 9px; padding: 10px 14px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+#s8 .sn { font-size: 11px; font-weight: 700; color: var(--red); min-width: 16px; padding-top: 1px; }
+#s8 .step h4 { font-size: 12.5px; font-weight: 600; margin-bottom: 2px; color: var(--navy); }
+#s8 .step p  { font-size: 11.5px; color: var(--grey); line-height: 1.45; }
+
+/* ════════════════════════════════════════
+   SLIDE 9 — O PROFILE
+════════════════════════════════════════ */
+#s9 .two-col { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; }
+#s9 .sg { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 8px; }
+#s9 .sk {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px;
+}
+#s9 .sk-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+#s9 .sk-name { font-size: 11px; color: var(--grey); }
+#s9 .sk-val  { font-size: 11px; font-weight: 700; color: var(--navy); }
+#s9 .sk-bar  { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+#s9 .sk-fill { height: 100%; background: var(--red); border-radius: 99px; }
+#s9 .deltas  { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+#s9 .delta   { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 5px; }
+#s9 .dp { background: rgba(2,195,154,.1); color: #019a79; }
+#s9 .dn { background: rgba(74,85,104,.08); color: var(--grey); }
+#s9 .right-col { display: flex; flex-direction: column; gap: 11px; }
+#s9 .ps { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+#s9 .ps-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--grey-light); margin-bottom: 9px; }
+#s9 .patt { font-size: 11.5px; padding: 6px 9px; border-radius: 6px; margin-bottom: 5px; line-height: 1.45; }
+#s9 .pneg { background: rgba(250,90,80,.07); color: #c04040; border-left: 3px solid var(--red); }
+#s9 .ppos { background: rgba(2,195,154,.07); color: #019a79; border-left: 3px solid var(--green); }
+#s9 .hr-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 11.5px; }
+#s9 .hr-row:last-child { border-bottom: none; }
+#s9 .tid  { color: var(--grey-light); font-weight: 600; }
+#s9 .task { color: var(--navy); flex: 1; padding: 0 10px; }
+#s9 .lv-s { color: #c05840; }
+#s9 .lv-v { color: var(--red); font-weight: 600; }
+
+/* ════════════════════════════════════════
+   SLIDE 10 — DIVISÓRIA: DASHBOARD
+════════════════════════════════════════ */
+#s10 .safe { justify-content: center; }
+#s10 .dv-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: rgba(250,185,255,.55);
+  margin-bottom: 16px;
+}
+#s10 h2 {
+  font-size: 52px; font-weight: 300; line-height: 1.1; color: #fff;
+  max-width: 700px; margin-bottom: 32px;
+}
+#s10 h2 strong { font-weight: 700; color: var(--pink); display: block; }
+#s10 .pages { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; max-width: 780px; }
+#s10 .pg {
+  background: rgba(250,185,255,.07); border: 1px solid rgba(250,185,255,.15);
+  border-radius: 10px; padding: 14px 14px;
+  text-align: center;
+}
+#s10 .pg .pi { font-size: 22px; margin-bottom: 7px; }
+#s10 .pg .pn { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.8); }
+#s10 .pg .ps { font-size: 10.5px; color: rgba(250,185,255,.5); margin-top: 2px; }
+#s10 .pg.hi { border-color: rgba(250,185,255,.4); background: rgba(250,185,255,.12); }
+#s10 .pg.hi .pn { color: var(--pink); }
+
+/* ════════════════════════════════════════
+   SLIDE 11 — O DASHBOARD (conteúdo)
+════════════════════════════════════════ */
+#s11 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 2px; }
+#s11 .ss {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+#s11 .ss.hi { border-color: rgba(250,90,80,.4); }
+#s11 .ss img { width: 100%; display: block; max-height: 192px; object-fit: cover; object-position: top; }
+#s11 .ss-lbl { padding: 7px 12px; font-size: 11.5px; font-weight: 600; color: var(--grey); }
+#s11 .ss.hi .ss-lbl { color: var(--red); }
+#s11 .api-col { display: flex; flex-direction: column; gap: 8px; }
+#s11 .route {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 9px; padding: 9px 14px;
+  display: flex; gap: 10px; align-items: baseline;
+}
+#s11 .rp { font-family: monospace; font-size: 12px; color: var(--blue); min-width: 180px; }
+#s11 .rd { font-size: 12px; color: var(--grey); }
+#s11 .stack-box {
+  margin-top: 4px; padding: 11px 14px; border-radius: 9px;
+  background: rgba(250,90,80,.04); border: 1px solid rgba(250,90,80,.15);
+}
+#s11 .stack-box .sb-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--red); margin-bottom: 5px; }
+#s11 .stack-box p { font-size: 12px; color: var(--grey); line-height: 1.6; }
+
+/* ════════════════════════════════════════
+   SLIDE 12 — MULTI-PROJETO
+════════════════════════════════════════ */
+#s12 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+#s12 .pg-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+#s12 .pc {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
+}
+#s12 .pc.active { border-color: rgba(250,90,80,.4); background: rgba(250,90,80,.04); }
+#s12 .pc .icon { font-size: 22px; margin-bottom: 6px; }
+#s12 .pc h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; color: var(--navy); }
+#s12 .pc.active h4 { color: var(--red); }
+#s12 .pc p { font-size: 11px; color: var(--grey-light); line-height: 1.45; margin-bottom: 7px; }
+#s12 .pc-new {
+  background: transparent; border: 1px dashed rgba(250,90,80,.3);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; text-align: center;
+}
+#s12 .pc-new .icon { color: var(--red); opacity: .5; }
+#s12 .pc-new p { color: rgba(250,90,80,.5); font-size: 11px; }
+#s12 .right-col { display: flex; flex-direction: column; gap: 11px; }
+#s12 .tab-demo {
+  background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+}
+#s12 .tabs { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; }
+#s12 .tab { padding: 8px 13px; font-size: 12px; font-weight: 500; color: var(--grey-light); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+#s12 .tab.on { border-color: var(--red); color: var(--red); }
+#s12 .tab-body { padding: 11px 14px; font-size: 12px; color: var(--grey); line-height: 1.6; }
+#s12 .feat {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 16px;
+}
+#s12 .feat h4 { font-size: 12.5px; font-weight: 600; margin-bottom: 4px; color: var(--navy); }
+#s12 .feat p  { font-size: 11.5px; color: var(--grey); line-height: 1.5; }
+
+/* ════════════════════════════════════════
+   SLIDE 13 — ARQUITETURA
+════════════════════════════════════════ */
+#s13 .two-col { display: grid; grid-template-columns: 1fr 1.1fr; gap: 20px; }
+#s13 .tree {
+  background: var(--navy-light); border-radius: 14px; overflow: hidden;
+}
+#s13 .tree-bar {
+  background: var(--navy-mid); padding: 7px 14px;
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.3); font-family: monospace;
+}
+#s13 .tree-body {
+  padding: 14px 18px;
+  font-family: 'SF Mono','Fira Code',monospace; font-size: 11.5px; line-height: 1.9;
+}
+#s13 .d  { color: #6c9bd1; font-weight: 600; }
+#s13 .hi { color: #02c39a; font-weight: 600; }
+#s13 .f  { color: rgba(255,255,255,.45); }
+#s13 .cm { color: rgba(255,255,255,.2); font-style: italic; }
+#s13 .legends { display: flex; flex-direction: column; gap: 11px; }
+#s13 .lg-item {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 16px;
+}
+#s13 .lg-item h4 { font-size: 12.5px; font-weight: 600; margin-bottom: 4px; color: var(--navy); }
+#s13 .lg-item p  { font-size: 11.5px; color: var(--grey); line-height: 1.5; }
 </style>
 </head>
 <body>
+<div class="bar"><div class="bar-fill" id="bf"></div></div>
 <div class="deck">
 
-  <!-- ══════════ SLIDE 1 — COVER ══════════ -->
-  <div class="slide active" id="s1">
+<!-- ═══════════════════════════════
+     1 — COVER
+═══════════════════════════════ -->
+<div class="slide slide-cover" id="s1">
+  <div class="top-bar">
     <div class="logo">
       <div class="logo-mark">CI&T</div>
-      <div class="logo-text">Trailblazer <span>Onboarding Platform</span></div>
+      <div class="logo-name">Trailblazers <span>Onboarding Platform</span></div>
     </div>
+    <div class="date">2026</div>
+  </div>
+  <div class="safe">
     <h1>Onboarding técnico<br><strong>orientado a evidências.</strong></h1>
-    <p>Tasks reais da stack da empresa, avaliação estruturada por IA, perfil evolutivo e plano de estudos personalizado — tudo integrado num dashboard local.</p>
+    <p>Tasks reais da stack, avaliação estruturada por IA, perfil evolutivo e plano de estudos personalizado — num dashboard local que dev e time acompanham juntos.</p>
     <div class="tags">
-      <span class="label label-red">NestJS · MongoDB · Redis · OTel</span>
-      <span class="label label-blue">Avaliação por IA</span>
-      <span class="label label-purple">Feedback contínuo</span>
+      <span class="pill pill-red">NestJS · MongoDB · Redis · OTel</span>
+      <span class="pill pill-blue" style="background:rgba(180,220,250,.12);color:#b4dcfa">5 plataformas</span>
+      <span class="pill pill-pink">Avaliação por IA</span>
+      <span class="pill" style="background:rgba(2,195,154,.12);color:#7ef5d8">Perfil evolutivo</span>
     </div>
   </div>
+</div>
 
-  <!-- ══════════ SLIDE 2 — PROBLEMA ══════════ -->
-  <div class="slide" id="s2">
-    <div class="slide-title">Contexto</div>
-    <div class="slide-heading">O onboarding tradicional <strong>não escala.</strong></div>
-    <div class="slide-sub">Três problemas recorrentes que custam tempo do time e deixam o novo dev sem direção clara.</div>
-
-    <div class="problems">
-      <div class="problem-card">
-        <div class="icon">📄</div>
+<!-- ═══════════════════════════════
+     2 — O PROBLEMA
+═══════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="safe">
+    <div class="eyebrow">Contexto</div>
+    <div class="heading">O onboarding tradicional <strong>não escala.</strong></div>
+    <div class="sub">Três problemas recorrentes que custam tempo do time e deixam o novo dev sem direção clara.</div>
+    <div class="cols3">
+      <div class="pcol">
+        <div class="pcol-icon">📄</div>
         <h3>Onboarding passivo</h3>
-        <p>O dev lê documentação, assiste demos e segue tutoriais. Aprende o que está escrito, não o que é cobrado na prática diária do time.</p>
+        <p>O dev lê documentação, assiste demos e segue tutoriais. Aprende o que está escrito — não o que é cobrado na prática diária do time.</p>
       </div>
-      <div class="problem-card">
-        <div class="icon">🔇</div>
+      <div class="pcol">
+        <div class="pcol-icon">🔇</div>
         <h3>Feedback inconsistente</h3>
-        <p>Cada tech lead avalia de forma diferente. Não há critérios claros, nem histórico de evolução. O dev não sabe onde está nem o que falta.</p>
+        <p>Cada tech lead avalia diferente. Sem critérios claros nem histórico de evolução, o dev não sabe onde está nem o que falta para avançar.</p>
       </div>
-      <div class="problem-card">
-        <div class="icon">🕳️</div>
+      <div class="pcol">
+        <div class="pcol-icon">🕳️</div>
         <h3>Gaps invisíveis</h3>
         <p>Observabilidade, cache, performance de banco — os gaps só aparecem em produção. Não há mecanismo para detectá-los antes.</p>
       </div>
     </div>
-
-    <div class="vs">
+    <div class="insight">
       <span>💡</span>
-      <span>A pergunta que motivou o projeto: <strong>como garantir que cada dev que entra no time domine o stack antes de tocar em produção — com evidências concretas disso?</strong></span>
+      <span>Como garantir que cada dev que entra no time domine o stack antes de tocar produção — <strong>com evidências concretas disso?</strong></span>
     </div>
   </div>
+</div>
 
-  <!-- ══════════ SLIDE 3 — SOLUÇÃO ══════════ -->
-  <div class="slide" id="s3">
-    <div class="slide-title">A Solução</div>
-    <div class="slide-heading">Um ciclo fechado de<br><strong>implementação e aprendizado.</strong></div>
-
-    <div class="flow">
-      <div class="flow-node">
-        <div class="fn-icon">📋</div>
-        <div class="fn-label">Task</div>
-        <div class="fn-sub">T-NNN.md</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node highlight">
-        <div class="fn-icon">💻</div>
-        <div class="fn-label">Dev implementa</div>
-        <div class="fn-sub">no repositório</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node highlight">
-        <div class="fn-icon">🤖</div>
-        <div class="fn-label">IA avalia</div>
-        <div class="fn-sub">diff + testes</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node">
-        <div class="fn-icon">👤</div>
-        <div class="fn-label">Profile</div>
-        <div class="fn-sub">atualizado</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node">
-        <div class="fn-icon">📚</div>
-        <div class="fn-label">Plano</div>
-        <div class="fn-sub">de estudos</div>
-      </div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-node">
-        <div class="fn-icon">📊</div>
-        <div class="fn-label">Dashboard</div>
-        <div class="fn-sub">visível para todos</div>
-      </div>
+<!-- ═══════════════════════════════
+     3 — A SOLUÇÃO
+═══════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="safe">
+    <div class="eyebrow">A Solução</div>
+    <div class="heading">Um ciclo fechado de <strong>implementação e aprendizado.</strong></div>
+    <div class="cycle">
+      <div class="node"><div class="ni">📋</div><div class="nl">Task</div><div class="ns">T-NNN.md</div></div>
+      <div class="arrow">→</div>
+      <div class="node hi"><div class="ni">💻</div><div class="nl">Dev implementa</div><div class="ns">no repositório</div></div>
+      <div class="arrow">→</div>
+      <div class="node hi"><div class="ni">🤖</div><div class="nl">CLI monta prompt</div><div class="ns">diff + testes + perfil</div></div>
+      <div class="arrow">→</div>
+      <div class="node hi"><div class="ni">🧠</div><div class="nl">Claude API</div><div class="ns">avalia com rubrica</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="ni">👤</div><div class="nl">Profile atualizado</div><div class="ns">skills + padrões</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="ni">📊</div><div class="nl">Dashboard</div><div class="ns">visível para todos</div></div>
     </div>
-
     <div class="callouts">
-      <div class="callout">
-        <strong>Tasks são especificações reais</strong>
-        Contexto, escopo, dicas, fora do escopo e Definition of Done — igual a uma task de produto. O dev trata como trabalho, não como exercício.
-      </div>
-      <div class="callout">
-        <strong>A IA avalia como um tech lead</strong>
-        Critérios explícitos + critérios ocultos. O nível final vai de <em>insufficient</em> a <em>exceptional</em> com feedback personalizado pelo histórico do dev.
-      </div>
-      <div class="callout">
-        <strong>O perfil é acumulativo</strong>
-        Skills, padrões comportamentais, histórico de avaliações — tudo persiste. O plano de estudos é gerado automaticamente quando há gap.
-      </div>
+      <div class="co"><strong>Tasks são especificações reais</strong>Contexto, escopo, dicas, fora do escopo e DoD — igual a uma task de produto. O dev trata como trabalho, não exercício.</div>
+      <div class="co"><strong>A IA avalia como um tech lead</strong>Critérios explícitos + critérios ocultos. Nível vai de <em>insufficient</em> a <em>exceptional</em> com feedback personalizado pelo histórico.</div>
+      <div class="co"><strong>O perfil é acumulativo</strong>Skills, padrões comportamentais, histórico de avaliações. Plano de estudos gerado automaticamente quando há gap recorrente.</div>
     </div>
   </div>
+</div>
 
-  <!-- ══════════ SLIDE 4 — TASK ══════════ -->
-  <div class="slide" id="s4">
-    <div class="slide-title">Componente 1</div>
-    <div class="slide-heading">A Task — <strong>especificação de produto,</strong><br>não tutorial.</div>
+<!-- ═══════════════════════════════
+     4 — DIVISÓRIA: COMPONENTES
+═══════════════════════════════ -->
+<div class="slide slide-divider" id="s4">
+  <div class="safe">
+    <div class="dv-num">06</div>
+    <div class="dv-label">Componentes do sistema</div>
+    <h2>Como cada<br><strong>peça funciona.</strong></h2>
+    <div class="items">
+      <div class="dv-item"><span>📋</span><div class="num">01</div>A Task — especificação de produto</div>
+      <div class="dv-item"><span>⚖️</span><div class="num">02</div>A Rubrica — critérios explícitos e ocultos</div>
+      <div class="dv-item"><span>🧠</span><div class="num">03</div>O Prompt — contrato imutável com o Claude</div>
+      <div class="dv-item"><span>⚙️</span><div class="num">04</div>O CLI — orquestra projeto, task, evidências e API</div>
+      <div class="dv-item"><span>👤</span><div class="num">05</div>O Profile — memória acumulativa do dev</div>
+      <div class="dv-item"><span>📊</span><div class="num">06</div>O Dashboard — visibilidade para o time</div>
+    </div>
+  </div>
+</div>
 
-    <div class="task-layout">
-      <div class="task-md">
-        <div class="fm">---</div>
-        <div class="fm">id: T-004 &nbsp; type: FEATURE &nbsp; difficulty: medium</div>
-        <div class="fm">services: [core] &nbsp; tags: [redis, cache]</div>
-        <div class="fm">---</div>
-        <div class="sec">## Contexto</div>
-        <div class="txt">GET /products é chamado com alta frequência. Cada requisição resulta em query ao MongoDB. Redis está no compose mas não é utilizado.</div>
-        <div class="sec">## Escopo</div>
-        <div class="txt">- Cache com TTL 60s em GET /products<br>- Cache com TTL 120s em GET /products/:id<br>- Invalidar cache da lista ao criar produto</div>
-        <div class="sec">## Fora do escopo</div>
-        <div class="txt">- Não aplicar cache em orders ou customers<br>- Não implementar Redis como fila ou pub/sub</div>
-        <div class="sec">## Definition of done</div>
-        <div class="dod">- [ ] GET /products cacheado no 2º acesso<br>- [ ] POST /products invalida cache da lista<br>- [ ] Conexão via REDIS_HOST e REDIS_PORT<br>- [ ] Testes: hit, miss, invalidação</div>
-        <div class="sec">## Domain</div>
-        <div class="txt">core/src/products/products.service.ts</div>
+<!-- ═══════════════════════════════
+     5 — A TASK
+═══════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="safe">
+    <div class="eyebrow">Componente 01</div>
+    <div class="heading">A Task — <strong>especificação de produto,</strong> não tutorial.</div>
+    <div class="two-col" style="flex:1;overflow:hidden;margin-top:4px;">
+      <div class="code-block">
+        <div class="cb-bar">
+          <div class="cb-dot" style="background:#ff5f56"></div>
+          <div class="cb-dot" style="background:#ffbd2e"></div>
+          <div class="cb-dot" style="background:#27c93f"></div>
+          <span class="cb-filename">tasks/backend/T-004.md</span>
+        </div>
+        <div class="cb-body">
+          <div><span class="fm">---</span></div>
+          <div><span class="fm">id: T-004 &nbsp; type: FEATURE &nbsp; difficulty: medium</span></div>
+          <div><span class="fm">services: [core] &nbsp; tags: [redis, cache]</span></div>
+          <div><span class="fm">---</span></div>
+          <div><span class="sec">## Contexto</span></div>
+          <div><span class="txt">GET /products com alta frequência. Redis no</span></div>
+          <div><span class="txt">compose mas não utilizado.</span></div>
+          <div><span class="sec">## Escopo</span></div>
+          <div><span class="txt">- Cache TTL 60s em GET /products</span></div>
+          <div><span class="txt">- Cache TTL 120s em GET /products/:id</span></div>
+          <div><span class="txt">- Invalidar cache ao criar produto</span></div>
+          <div><span class="sec">## Fora do escopo</span></div>
+          <div><span class="txt">- Não aplicar cache em orders ou customers</span></div>
+          <div><span class="txt">- Não usar Redis como fila ou pub/sub</span></div>
+          <div><span class="sec">## Definition of done</span></div>
+          <div><span class="dod">- [ ] GET /products cacheado no 2º acesso</span></div>
+          <div><span class="dod">- [ ] POST invalida cache &nbsp; [ ] Testes: hit, miss</span></div>
+          <div><span class="sec">## Domain</span></div>
+          <div><span class="dom">core/src/products/products.service.ts</span></div>
+        </div>
       </div>
-
       <div class="principles">
-        <div class="principle">
-          <div class="p-icon">🎯</div>
-          <div>
-            <h4>O QUE, não o COMO</h4>
-            <p>O escopo descreve comportamento verificável. A solução técnica é decisão do dev — assim como em produção.</p>
-          </div>
-        </div>
-        <div class="principle">
-          <div class="p-icon">🚧</div>
-          <div>
-            <h4>Fora do escopo previne gold-plating</h4>
-            <p>Delimitar o que não deve ser feito é tão importante quanto o que deve. Avaliadores checam isso explicitamente.</p>
-          </div>
-        </div>
-        <div class="principle">
-          <div class="p-icon">✅</div>
-          <div>
-            <h4>DoD é binário e verificável</h4>
-            <p>Cada critério é uma pergunta com resposta sim/não. A IA busca evidência no diff — não intenção.</p>
-          </div>
-        </div>
-        <div class="principle">
-          <div class="p-icon">📍</div>
-          <div>
-            <h4>Domain como ownership</h4>
-            <p>Os caminhos em Domain são "propriedade" da task. Outras tasks não tocam esses arquivos sem justificativa explícita.</p>
-          </div>
-        </div>
+        <div class="pp"><div class="pp-icon">🎯</div><div><h4>O QUE, não o COMO</h4><p>O escopo descreve comportamento verificável. A solução técnica é decisão do dev — como em produção.</p></div></div>
+        <div class="pp"><div class="pp-icon">🚧</div><div><h4>Fora do escopo previne gold-plating</h4><p>Delimitar o que não deve ser feito é tão importante quanto o que deve. Avaliadores checam isso explicitamente.</p></div></div>
+        <div class="pp"><div class="pp-icon">✅</div><div><h4>DoD é binário e verificável</h4><p>Cada critério é sim/não. A IA busca evidência no diff — não intenção declarada.</p></div></div>
+        <div class="pp"><div class="pp-icon">📍</div><div><h4>Domain como ownership</h4><p>Os caminhos em Domain são propriedade da task. Outras tasks não tocam esses arquivos sem justificativa.</p></div></div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ══════════ SLIDE 5 — RUBRICA ══════════ -->
-  <div class="slide" id="s5">
-    <div class="slide-title">Componente 2</div>
-    <div class="slide-heading">A Rubrica — <strong>critérios explícitos</strong><br>e critérios ocultos.</div>
-
-    <div class="rubric-layout">
+<!-- ═══════════════════════════════
+     6 — A RUBRICA
+═══════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="safe">
+    <div class="eyebrow">Componente 02</div>
+    <div class="heading">A Rubrica — <strong>critérios explícitos</strong> e critérios ocultos.</div>
+    <div class="two-col" style="flex:1;overflow:hidden;margin-top:4px;">
       <div>
-        <div style="margin-bottom:14px; font-size:13px; color:var(--text-muted);">5 níveis ordenados. O primeiro que for verdadeiro vence.</div>
+        <p style="font-size:12.5px;color:var(--grey);margin-bottom:12px;">5 níveis ordenados — o primeiro que for verdadeiro vence.</p>
         <div class="levels">
-          <div class="level level-1">
-            <div class="dot"></div>
-            <div class="lv-name">Insufficient</div>
-            <div class="lv-desc">Um ou mais critérios do DoD não foram atendidos</div>
-          </div>
-          <div class="level level-2">
-            <div class="dot"></div>
-            <div class="lv-name">Partial</div>
-            <div class="lv-desc">DoD no caminho certo mas com gaps em testes ou casos limite</div>
-          </div>
-          <div class="level level-3">
-            <div class="dot"></div>
-            <div class="lv-name">Sufficient</div>
-            <div class="lv-desc">Todos os DoD atendidos, nenhum critério oculto atingido</div>
-          </div>
-          <div class="level level-4">
-            <div class="dot"></div>
-            <div class="lv-name">Very Good</div>
-            <div class="lv-desc">DoD completo + ao menos um critério oculto atingido</div>
-          </div>
-          <div class="level level-5">
-            <div class="dot"></div>
-            <div class="lv-name">Exceptional</div>
-            <div class="lv-desc">DoD + todos os ocultos + pattern file + functional check</div>
-          </div>
+          <div class="lv l1"><div class="dot"></div><div class="lv-name">Insufficient</div><div class="lv-desc">Um ou mais critérios do DoD não atendidos</div></div>
+          <div class="lv l2"><div class="dot"></div><div class="lv-name">Partial</div><div class="lv-desc">DoD no caminho certo mas com gaps em testes ou casos limite</div></div>
+          <div class="lv l3"><div class="dot"></div><div class="lv-name">Sufficient</div><div class="lv-desc">Todos os DoD atendidos, nenhum critério oculto atingido</div></div>
+          <div class="lv l4"><div class="dot"></div><div class="lv-name">Very Good</div><div class="lv-desc">DoD completo + ao menos um critério oculto sufficient</div></div>
+          <div class="lv l5"><div class="dot"></div><div class="lv-name">Exceptional</div><div class="lv-desc">DoD + todos os ocultos + pattern file + functional check</div></div>
         </div>
       </div>
-
-      <div class="criteria-types">
-        <div class="ct">
-          <span class="label label-blue ct-tag">dod_criteria</span>
-          <h4>Critérios explícitos</h4>
-          <p>Mapeados diretamente ao DoD da task. Cada item tem <code>how_to_verify</code> (onde buscar no diff) e três níveis de evidência: insufficient, partial, sufficient.</p>
-        </div>
-        <div class="ct">
-          <span class="label label-purple ct-tag">hidden_criteria</span>
-          <h4>Critérios ocultos</h4>
-          <p>O dev nunca os vê. São os pontos que <em>"um dev atento perceberia"</em> — serialização Mongoose, timeout no hot path, ordem de inicialização do SDK. O que diferencia sufficient de exceptional.</p>
-        </div>
-        <div class="ct">
-          <span class="label label-green ct-tag">tiebreaker</span>
-          <h4>Peso dos critérios</h4>
-          <p>Cada hidden tem peso <code>high | medium | low</code>. Em empate entre níveis adjacentes, critérios de peso maior decidem — garante consistência entre avaliações.</p>
-        </div>
+      <div class="criteria-col">
+        <div class="ct"><span class="pill pill-blue tag">dod_criteria</span><h4>Critérios explícitos</h4><p>Mapeados ao DoD da task. Cada item tem <code>how_to_verify</code> — onde buscar a evidência no diff. Três níveis de resultado: insufficient, partial, sufficient.</p></div>
+        <div class="ct"><span class="pill pill-wine tag">hidden_criteria</span><h4>Critérios ocultos</h4><p>O dev nunca os vê. São os pontos que <em>"um dev atento perceberia"</em> — timeout no hot path, ordem de init do SDK, serialização Mongoose. O que separa sufficient de exceptional.</p></div>
+        <div class="ct"><span class="pill pill-grey tag">tiebreaker</span><h4>Peso dos critérios</h4><p>Cada hidden tem peso <code>high | medium | low</code>. Em empate entre níveis adjacentes, critérios de maior peso decidem — garante consistência entre avaliações.</p></div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ══════════ SLIDE 6 — EVALUATOR ══════════ -->
-  <div class="slide" id="s6">
-    <div class="slide-title">Componente 3</div>
-    <div class="slide-heading">O Evaluator — <strong>IA como tech lead</strong><br>estruturado por prompt contratual.</div>
+<!-- ═══════════════════════════════
+     7 — O PROMPT
+═══════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="safe">
+    <div class="eyebrow">Componente 03</div>
+    <div class="heading">O Prompt — <strong>contrato imutável</strong> entre o CLI e o Claude.</div>
+    <div class="two-col" style="flex:1;overflow:hidden;margin-top:4px;">
+      <div class="prompt-stack">
+        <div class="pblock">
+          <div class="pb-header">System Prompt — fixo</div>
+          <div class="pb-body">
+            <div><span class="kw">ETAPA 1</span> <span class="cm">— Avalie dod_criteria (insuf / partial / suf)</span></div>
+            <div><span class="kw">ETAPA 2</span> <span class="cm">— Avalie hidden_criteria</span></div>
+            <div><span class="kw">ETAPA 3</span> <span class="cm">— Verifique pattern_file e functional_check</span></div>
+            <div><span class="kw">ETAPA 4</span> <span class="cm">— Determine nível final (primeiro que for true)</span></div>
+            <div><span class="kw">ETAPA 5</span> <span class="cm">— Calcule skillDelta (-2 a +2)</span></div>
+            <div><span class="kw">ETAPA 6</span> <span class="cm">— Gere studyPlanUpdate se houver gap</span></div>
+            <div><span class="kw">ETAPA 7</span> <span class="cm">— Componha feedback personalizado</span></div>
+          </div>
+        </div>
+        <div class="pblock">
+          <div class="pb-header">User Prompt — montado pelo CLI com {{placeholders}}</div>
+          <div class="pb-body">
+            <div><span class="ph">{{PROFILE_JSON}}</span> <span class="cm"># person.json do dev</span></div>
+            <div><span class="ph">{{TASK_MD_CONTENT}}</span> <span class="cm"># conteúdo do T-NNN.md</span></div>
+            <div><span class="ph">{{EVAL_JSON_CONTENT}}</span> <span class="cm"># rubrica do projeto</span></div>
+            <div><span class="ph">{{GIT_DIFF}}</span> <span class="cm"># git diff HEAD</span></div>
+            <div><span class="ph">{{TEST_OUTPUT_JSON}}</span> <span class="cm"># npm test output</span></div>
+            <div><span class="ph">{{FUNCTIONAL_CHECK_OUTPUT}}</span> <span class="cm"># make test:contract</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="right-col">
+        <div class="io-item"><div class="io-icon">📤</div><div><h4>Saída: JSON puro</h4><p>Claude responde <em>apenas</em> JSON contra o schema definido. dod_results, hidden_results, mainFeedback, profileUpdate, studyPlanUpdate.</p></div></div>
+        <div class="io-item"><div class="io-icon">🔒</div><div><h4>Critérios ocultos nunca revelados</h4><p>O system prompt proíbe revelar hidden_criteria. Usa o campo <code>rationale</code> para compor dicas sem entregar a resposta.</p></div></div>
+        <div class="io-item"><div class="io-icon">🔁</div><div><h4>Profile personaliza o feedback</h4><p>Se o dev tem padrão recorrente, o prompt reconhece. Se evoluiu num gap anterior, celebra — contexto acumulativo entre avaliações.</p></div></div>
+        <div class="rule"><strong>Regra de ouro:</strong> o CLI lê o arquivo de prompt verbatim. Só os <code>{{PLACEHOLDERS}}</code> mudam. O contrato de avaliação é estável entre todas as execuções.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <div class="eval-layout">
+<!-- ═══════════════════════════════
+     8 — O CLI
+═══════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="safe">
+    <div class="eyebrow">Componente 04</div>
+    <div class="heading">O CLI — <strong>orquestra</strong> projeto, task, prompt e API.</div>
+    <div class="two-col" style="flex:1;overflow:hidden;margin-top:4px;">
+      <div class="terminal">
+        <div class="term-bar">
+          <div class="td" style="background:#ff5f56"></div>
+          <div class="td" style="background:#ffbd2e"></div>
+          <div class="td" style="background:#27c93f"></div>
+          <span>node tasks/evaluate/run.js</span>
+        </div>
+        <div class="tb">
+          <div><span class="tp">$</span> <span class="tc">node tasks/evaluate/run.js</span></div>
+          <br>
+          <div><span class="to">╔════════════════════════════════╗</span></div>
+          <div><span class="to">║  Trailblazers — Evaluator CLI  ║</span></div>
+          <div><span class="to">╚════════════════════════════════╝</span></div>
+          <br>
+          <div><span class="tq">Qual(is) projeto(s) avaliar?</span></div>
+          <div><span class="to">&nbsp;&nbsp;1. backend &nbsp;2. ios &nbsp;3. android</span></div>
+          <div><span class="to">&nbsp;&nbsp;4. react &nbsp;&nbsp;&nbsp;5. react-native</span></div>
+          <div><span class="ti">&nbsp;&nbsp;Escolha: 1</span></div>
+          <br>
+          <div><span class="tq">Tasks disponíveis em [backend]:</span></div>
+          <div><span class="to">&nbsp;&nbsp;1. T-001 &nbsp;2. T-002 &nbsp;3. T-003</span></div>
+          <div><span class="ti">&nbsp;&nbsp;Escolha: 1,2</span></div>
+          <br>
+          <div><span class="to">📦 Coletando contexto do repositório...</span></div>
+          <div><span class="to">▶ &nbsp;Avaliando T-001 [backend]</span></div>
+          <div><span class="tok">✅ Nível final: very_good</span></div>
+          <div><span class="tw">📚 Plano de estudos gerado.</span></div>
+          <div><span class="tok">✅ Avaliação concluída.</span></div>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><div><h4>Seleciona projeto e tasks</h4><p>Menu readline. Suporta múltiplos projetos e tasks numa execução.</p></div></div>
+        <div class="step"><div class="sn">2</div><div><h4>Coleta evidências</h4><p><code>git diff HEAD</code>, <code>npm test</code>, functional check opcional. Nada é inventado.</p></div></div>
+        <div class="step"><div class="sn">3</div><div><h4>Monta o prompt</h4><p>Lê <code>evaluator.prompt.md</code> verbatim, substitui 8 placeholders com dados reais.</p></div></div>
+        <div class="step"><div class="sn">4</div><div><h4>Chama a Claude API</h4><p>Se <code>ANTHROPIC_API_KEY</code> setada, chama diretamente. Senão, imprime o prompt para uso manual.</p></div></div>
+        <div class="step"><div class="sn">5</div><div><h4>Aplica o resultado</h4><p>Atualiza <code>person.json</code>, salva relatório em <code>evaluate/reports/</code>, gera plano de estudos se necessário.</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     9 — O PROFILE
+═══════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="safe">
+    <div class="eyebrow">Componente 05</div>
+    <div class="heading">O Profile — <strong>memória acumulativa</strong> de cada dev.</div>
+    <div class="two-col" style="flex:1;overflow:hidden;margin-top:4px;">
       <div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Entradas</div>
-        <div class="inputs">
-          <div class="io-item"><div class="io-icon">📝</div><div><h4>Git diff</h4><p>Todo o código escrito pelo dev na branch da task</p></div></div>
-          <div class="io-item"><div class="io-icon">🧪</div><div><h4>Resultado dos testes</h4><p>Output do jest — passou, falhou, cobertura</p></div></div>
-          <div class="io-item"><div class="io-icon">📋</div><div><h4>Rubrica (T-NNN.eval.json)</h4><p>dod_criteria, hidden_criteria, regras de nível</p></div></div>
-          <div class="io-item"><div class="io-icon">👤</div><div><h4>Profile do dev</h4><p>Histórico, padrões, skills — personaliza o feedback</p></div></div>
+        <p style="font-size:12.5px;color:var(--grey);margin-bottom:0;">Skills por tecnologia — alimenta o radar chart do dashboard</p>
+        <div class="sg">
+          <div class="sk"><div class="sk-head"><span class="sk-name">JavaScript</span><span class="sk-val">8</span></div><div class="sk-bar"><div class="sk-fill" style="width:80%"></div></div></div>
+          <div class="sk"><div class="sk-head"><span class="sk-name">Node.js</span><span class="sk-val">7</span></div><div class="sk-bar"><div class="sk-fill" style="width:70%"></div></div></div>
+          <div class="sk"><div class="sk-head"><span class="sk-name">NestJS</span><span class="sk-val">5</span></div><div class="sk-bar"><div class="sk-fill" style="width:50%"></div></div></div>
+          <div class="sk"><div class="sk-head"><span class="sk-name">MongoDB</span><span class="sk-val">6</span></div><div class="sk-bar"><div class="sk-fill" style="width:60%"></div></div></div>
+          <div class="sk"><div class="sk-head"><span class="sk-name">Redis</span><span class="sk-val">3</span></div><div class="sk-bar"><div class="sk-fill" style="width:30%"></div></div></div>
+          <div class="sk"><div class="sk-head"><span class="sk-name">OpenTelemetry</span><span class="sk-val">2</span></div><div class="sk-bar"><div class="sk-fill" style="width:20%"></div></div></div>
+          <div class="sk"><div class="sk-head"><span class="sk-name">Honeycomb</span><span class="sk-val">1</span></div><div class="sk-bar"><div class="sk-fill" style="width:10%"></div></div></div>
+          <div class="sk"><div class="sk-head"><span class="sk-name">Splunk</span><span class="sk-val">2</span></div><div class="sk-bar"><div class="sk-fill" style="width:20%"></div></div></div>
+        </div>
+        <div class="deltas">
+          <span class="delta dp">+1 NestJS após T-002</span>
+          <span class="delta dp">+1 MongoDB após T-001</span>
+          <span class="delta dn">±0 OTel — sem mudança</span>
         </div>
       </div>
+      <div class="right-col">
+        <div class="ps">
+          <div class="ps-title">Padrões comportamentais</div>
+          <div class="patt pneg">❌ Implementa feature sem DTO de validação — recorrente em T-001 e T-002</div>
+          <div class="patt ppos">✓ Testes unitários bem estruturados com casos limite — consistente</div>
+          <div class="patt pneg" style="opacity:.5">❌ Lógica no controller — <em>resolvido em T-001</em></div>
+        </div>
+        <div class="ps">
+          <div class="ps-title">Histórico de avaliações</div>
+          <div class="hr-row"><span class="tid">T-001</span><span class="task">Endpoint no módulo existente</span><span class="lv-s">sufficient</span></div>
+          <div class="hr-row"><span class="tid">T-002</span><span class="task">Novo módulo de banners</span><span class="lv-v">very_good</span></div>
+        </div>
+        <div class="ps">
+          <div class="ps-title">Plano de estudos ativo</div>
+          <p style="font-size:12px;color:var(--grey);line-height:1.6;">Gerado após T-001 — 4 semanas · OTel fundamentals, traces no NestJS, Honeycomb, milestones verificáveis.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- ═══════════════════════════════
+     10 — DIVISÓRIA: DASHBOARD
+═══════════════════════════════ -->
+<div class="slide slide-divider" id="s10">
+  <div class="safe" style="justify-content:center;">
+    <div class="dv-label">O produto final</div>
+    <h2>O Dashboard —<br><strong>visibilidade para o dev e para o time.</strong></h2>
+    <div class="pages">
+      <div class="pg hi"><div class="pi">🏠</div><div class="pn">Home</div><div class="ps">5 projetos</div></div>
+      <div class="pg hi"><div class="pi">📋</div><div class="pn">Tasks</div><div class="ps">por plataforma</div></div>
+      <div class="pg"><div class="pi">📊</div><div class="pn">Dashboard</div><div class="ps">radar + gráficos</div></div>
+      <div class="pg"><div class="pi">🔧</div><div class="pn">Technologies</div><div class="ps">stack da empresa</div></div>
+      <div class="pg"><div class="pi">📚</div><div class="pn">Study</div><div class="ps">plano + timeline</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     11 — O DASHBOARD (conteúdo)
+═══════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="safe">
+    <div class="eyebrow">Componente 06</div>
+    <div class="heading">Dashboard local — <strong>React + Vite + Express.</strong></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;overflow:hidden;margin-top:4px;">
+      <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start;">
+        <div class="ss hi">
+          <img src="Captura de tela 2026-03-28 134034.png" alt="Tasks" />
+          <div class="ss-lbl">Tasks — status, filtros, expandível</div>
+        </div>
+        <div class="ss">
+          <img src="Captura de tela 2026-03-28 134023.png" alt="Dashboard" />
+          <div class="ss-lbl">Dashboard — radar + gráficos</div>
+        </div>
+        <div class="ss">
+          <img src="Captura de tela 2026-03-28 134047.png" alt="Technologies" />
+          <div class="ss-lbl">Technologies — stack</div>
+        </div>
+        <div class="ss hi">
+          <img src="Captura de tela 2026-03-28 134057.png" alt="Study" />
+          <div class="ss-lbl">Study — plano + timeline</div>
+        </div>
+      </div>
+      <div class="api-col">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--grey-light);margin-bottom:4px;">Endpoints da API Express</div>
+        <div class="route"><span class="rp">GET /api/projects</span><span class="rd">Lista projetos com contagem de tasks</span></div>
+        <div class="route"><span class="rp">GET /api/tasks?project=</span><span class="rd">Tasks do projeto selecionado</span></div>
+        <div class="route"><span class="rp">PATCH /api/tasks/:id/status</span><span class="rd">Atualiza status com projeto no body</span></div>
+        <div class="route"><span class="rp">GET /api/person</span><span class="rd">Perfil do desenvolvedor</span></div>
+        <div class="route"><span class="rp">GET /api/study/plan</span><span class="rd">Plano de estudos ativo</span></div>
+        <div class="stack-box">
+          <div class="sb-label">Stack</div>
+          <p>React 18 · Vite (5173) · Express (3001) · Recharts · Tailwind CSS<br><code>npm run dev</code> via concurrently</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     12 — MULTI-PROJETO
+═══════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="safe">
+    <div class="eyebrow">Escalabilidade</div>
+    <div class="heading">5 plataformas, <strong>tasks isoladas,</strong> perfil unificado.</div>
+    <div class="two-col" style="flex:1;overflow:hidden;margin-top:4px;">
       <div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;">Saídas (JSON estruturado)</div>
-        <div class="outputs">
-          <div class="io-item"><div class="io-icon">🏆</div><div><h4>finalLevel + feedback</h4><p>Nível com evidência + parágrafo personalizado pelo histórico</p></div></div>
-          <div class="io-item"><div class="io-icon">📈</div><div><h4>skillDelta</h4><p>-2 a +2 na tecnologia principal. CLI aplica em person.json</p></div></div>
-          <div class="io-item"><div class="io-icon">🔍</div><div><h4>Padrões comportamentais</h4><p>Novos, reforçados ou resolvidos. Acumulam no profile</p></div></div>
-          <div class="io-item"><div class="io-icon">📚</div><div><h4>studyPlanUpdate</h4><p>Plano gerado quando há gap — tópicos, refs, milestones</p></div></div>
+        <p style="font-size:12.5px;color:var(--grey);margin-bottom:10px;">Cada projeto tem seu diretório de tasks, critérios e status.json. O perfil do dev é compartilhado.</p>
+        <div class="pg-grid">
+          <div class="pc active"><div class="icon">⚙️</div><h4>Backend</h4><p>NestJS · MongoDB<br>Redis · OTel</p><span class="pill pill-red">6 tasks</span></div>
+          <div class="pc"><div class="icon">🍎</div><h4>iOS</h4><p>Swift · UIKit<br>SwiftUI</p><span class="pill pill-blue">em breve</span></div>
+          <div class="pc"><div class="icon">🤖</div><h4>Android</h4><p>Kotlin · Jetpack<br>Compose</p><span class="pill pill-blue">em breve</span></div>
+          <div class="pc"><div class="icon">⚛️</div><h4>React</h4><p>React · hooks<br>gerenciamento</p><span class="pill pill-blue">em breve</span></div>
+          <div class="pc"><div class="icon">📱</div><h4>React Native</h4><p>RN · Expo<br>cross-platform</p><span class="pill pill-blue">em breve</span></div>
+          <div class="pc pc-new"><div class="icon">＋</div><p>/novo-projeto</p></div>
         </div>
       </div>
-    </div>
-
-    <div class="steps">
-      <div class="step"><strong>1</strong>Avalia dod_criteria</div>
-      <div class="step"><strong>2</strong>Avalia hidden_criteria</div>
-      <div class="step"><strong>3</strong>Pattern file + func check</div>
-      <div class="step"><strong>4</strong>Determina nível final</div>
-      <div class="step"><strong>5</strong>Calcula skillDelta</div>
-      <div class="step"><strong>6</strong>Gera plano de estudos</div>
-      <div class="step"><strong>7</strong>Compõe feedback</div>
-    </div>
-  </div>
-
-  <!-- ══════════ SLIDE 7 — PROFILE ══════════ -->
-  <div class="slide" id="s7">
-    <div class="slide-title">Componente 4</div>
-    <div class="slide-heading">O Profile — <strong>memória acumulativa</strong><br>de cada dev no onboarding.</div>
-
-    <div class="profile-layout">
-      <div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Skills por tecnologia — alimenta o radar chart do dashboard</div>
-        <div class="skills-grid">
-          <div class="skill-row">
-            <div class="sk-name">JavaScript</div>
-            <div class="sk-score">8</div>
-            <div class="sk-bar"><div class="sk-fill" style="width:80%"></div></div>
+      <div class="right-col">
+        <div class="tab-demo">
+          <div class="tabs">
+            <div class="tab on">Backend</div>
+            <div class="tab">iOS</div>
+            <div class="tab">Android</div>
+            <div class="tab">React</div>
+            <div class="tab">React Native</div>
           </div>
-          <div class="skill-row">
-            <div class="sk-name">Node.js</div>
-            <div class="sk-score">7</div>
-            <div class="sk-bar"><div class="sk-fill" style="width:70%"></div></div>
-          </div>
-          <div class="skill-row">
-            <div class="sk-name">NestJS</div>
-            <div class="sk-score">5</div>
-            <div class="sk-bar"><div class="sk-fill" style="width:50%"></div></div>
-          </div>
-          <div class="skill-row">
-            <div class="sk-name">MongoDB</div>
-            <div class="sk-score">6</div>
-            <div class="sk-bar"><div class="sk-fill" style="width:60%"></div></div>
-          </div>
-          <div class="skill-row">
-            <div class="sk-name">Redis</div>
-            <div class="sk-score">3</div>
-            <div class="sk-bar"><div class="sk-fill" style="width:30%" ></div></div>
-          </div>
-          <div class="skill-row">
-            <div class="sk-name">OpenTelemetry</div>
-            <div class="sk-score">2</div>
-            <div class="sk-bar"><div class="sk-fill" style="width:20%"></div></div>
-          </div>
-          <div class="skill-row">
-            <div class="sk-name">Honeycomb</div>
-            <div class="sk-score">1</div>
-            <div class="sk-bar"><div class="sk-fill" style="width:10%"></div></div>
-          </div>
-          <div class="skill-row">
-            <div class="sk-name">Splunk</div>
-            <div class="sk-score">2</div>
-            <div class="sk-bar"><div class="sk-fill" style="width:20%"></div></div>
+          <div class="tab-body">
+            <span style="color:var(--red);font-weight:600;">T-001</span> · Endpoint de páginas · <span style="color:#c05840;">sufficient</span><br>
+            <span style="color:var(--red);font-weight:600;">T-002</span> · Módulo de banners · <span style="color:var(--red);font-weight:600;">very_good</span><br>
+            <span style="color:var(--grey-light);">T-003 … T-006 · todo</span>
           </div>
         </div>
+        <div class="feat"><h4>Adicionar projeto é trivial</h4><p>Criar <code>{projeto}/</code> na raiz + <code>tasks/{projeto}/</code> com <code>status.json</code> e <code>criteria/</code>. O servidor e o site detectam automaticamente.</p></div>
+        <div class="feat"><h4>Skill <code>/novo-projeto</code></h4><p>Claude Code skill que scaffolda a estrutura completa: pergunta stack, nível dos devs e intenção das tasks antes de criar qualquer arquivo.</p></div>
       </div>
+    </div>
+  </div>
+</div>
 
-      <div class="profile-right">
-        <div class="profile-section">
-          <h4>Padrões comportamentais</h4>
-          <div class="pattern pattern-neg">❌ Implementa feature sem DTO de validação — recorrente em T-001 e T-002</div>
-          <div class="pattern pattern-pos">✓ Testes unitários bem estruturados com casos limite — consistente</div>
-          <div class="pattern pattern-neg" style="opacity:0.5">❌ Lógica no controller em vez do service — <em>resolvido em T-001</em></div>
+<!-- ═══════════════════════════════
+     13 — ARQUITETURA
+═══════════════════════════════ -->
+<div class="slide" id="s13">
+  <div class="safe">
+    <div class="eyebrow">Arquitetura</div>
+    <div class="heading">Um repositório, <strong>contexto isolado</strong> por projeto.</div>
+    <div class="two-col" style="flex:1;overflow:hidden;margin-top:4px;">
+      <div class="tree">
+        <div class="tree-bar">poc/ — estrutura de diretórios</div>
+        <div class="tree-body">
+          <div><span class="d">poc/</span></div>
+          <div>&nbsp;&nbsp;<span class="d">backend/</span>&nbsp;&nbsp;<span class="cm"># NestJS BFF + Core (código)</span></div>
+          <div>&nbsp;&nbsp;<span class="f">ios/ &nbsp;android/ &nbsp;react/ &nbsp;react-native/</span></div>
+          <div>&nbsp;&nbsp;<span class="d">site/</span>&nbsp;&nbsp;<span class="cm"># React + Vite + Express API</span></div>
+          <div>&nbsp;&nbsp;<span class="d">tasks/</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="d">backend/</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hi">T-001.md … T-006.md</span>&nbsp;&nbsp;<span class="hi">status.json</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="d">criteria/</span>&nbsp;&nbsp;<span class="hi">T-001.eval.json …</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="f">ios/ &nbsp;android/ &nbsp;react/ &nbsp;react-native/</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="d">evaluate/</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hi">run.js</span>&nbsp;&nbsp;<span class="cm"># CLI interativo</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="d">prompts/</span>&nbsp;&nbsp;<span class="f">evaluator.prompt.md</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="d">person/</span>&nbsp;&nbsp;<span class="cm"># compartilhado entre projetos</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="f">person.json &nbsp;study/plan.json</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="f">template.md &nbsp;criteria/template.json</span></div>
         </div>
-        <div class="profile-section">
-          <h4>Histórico de avaliações</h4>
-          <div class="history-row"><span class="tid">T-001</span><span>Endpoint no módulo existente</span><span class="lv-sufficient">sufficient</span></div>
-          <div class="history-row"><span class="tid">T-002</span><span>Novo módulo de banners</span><span class="lv-very_good">very_good</span></div>
-        </div>
+      </div>
+      <div class="legends">
+        <div class="lg-item"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pill pill-blue">tasks/{projeto}/</span></div><h4>Isolamento por plataforma</h4><p>Cada projeto tem suas próprias tasks, critérios e status.json. Nenhum projeto enxerga arquivos do outro.</p></div>
+        <div class="lg-item"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pill pill-green">tasks/person/</span></div><h4>Profile compartilhado</h4><p>O perfil acumula avaliações de todos os projetos. Skills são por tecnologia, não por plataforma.</p></div>
+        <div class="lg-item"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pill pill-red">evaluate/run.js</span></div><h4>CLI agnóstico de projeto</h4><p>Pergunta qual projeto e quais tasks avaliar. Resolve os caminhos e monta o prompt com dados reais.</p></div>
+        <div class="lg-item"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span class="pill pill-grey">site/server/</span></div><h4>API unificada</h4><p>Express serve todos os projetos via <code>?project=backend</code>. React navega por URL — <code>/tasks/:project</code>.</p></div>
       </div>
     </div>
   </div>
-
-  <!-- ══════════ SLIDE 8 — DASHBOARD ══════════ -->
-  <div class="slide" id="s8">
-    <div class="slide-title">Componente 5</div>
-    <div class="slide-heading">O Dashboard — <strong>visibilidade real</strong><br>para o dev e para o time.</div>
-
-    <div class="screen-layout">
-      <div class="screen-card screen-highlight">
-        <img src="Captura de tela 2026-03-28 134034.png" alt="Tasks" />
-        <div class="screen-label">Tasks — status, dificuldade, tipo, filtros</div>
-      </div>
-      <div class="screen-card screen-highlight">
-        <img src="Captura de tela 2026-03-28 134023.png" alt="Dashboard" />
-        <div class="screen-label">Dashboard — radar de skills, progresso, qualidade, erros</div>
-      </div>
-      <div class="screen-card">
-        <img src="Captura de tela 2026-03-28 134002.png" alt="Study Plan" />
-        <div class="screen-label">Study Plan — plano gerado automaticamente pela IA</div>
-      </div>
-      <div class="screen-card">
-        <img src="Captura de tela 2026-03-28 134015.png" alt="Study Detail" />
-        <div class="screen-label">Tópico expandido — objetivos, referências, milestones</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════ SLIDE 9 — VALOR ══════════ -->
-  <div class="slide" id="s9">
-    <div class="slide-title">Proposta de Valor</div>
-    <div class="slide-heading">O que isso resolve<br><strong>na prática.</strong></div>
-
-    <div class="value-grid">
-      <div class="persona persona-dev">
-        <div class="p-role">Para o desenvolvedor</div>
-        <h3 style="color:var(--primary)">Clareza e direção desde o dia 1</h3>
-        <ul>
-          <li>Sabe exatamente o que é esperado — o DoD é binário, sem ambiguidade</li>
-          <li>Recebe feedback concreto com base em evidência no código, não em opinião</li>
-          <li>Enxerga seus gaps por tecnologia em um radar atualizado a cada task</li>
-          <li>Recebe um plano de estudos personalizado quando o nível está abaixo do esperado</li>
-          <li>Aprende os padrões de produção fazendo, não lendo</li>
-        </ul>
-      </div>
-      <div class="persona persona-mgr">
-        <div class="p-role">Para o gerente e o time</div>
-        <h3>Visibilidade sem overhead</h3>
-        <ul>
-          <li>Dashboard mostra progresso técnico real — sem reunião de status</li>
-          <li>Critérios de avaliação são consistentes entre todos os devs e avaliações</li>
-          <li>Padrões comportamentais ficam documentados — fácil identificar o que reforçar</li>
-          <li>Gaps de observabilidade e performance aparecem antes de chegar em produção</li>
-          <li>Tasks calibradas por dificuldade garantem rampa de aprendizado estruturada</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════ SLIDE 10 — PRÓXIMOS PASSOS ══════════ -->
-  <div class="slide" id="s10">
-    <div class="slide-title">Roadmap</div>
-    <div class="slide-heading">O que já existe e<br><strong>o que vem a seguir.</strong></div>
-
-    <div class="next-grid">
-      <div class="next-item" style="border-top:3px solid #7DEFA1">
-        <div class="phase">✓ Pronto</div>
-        <h4>Base do sistema</h4>
-        <ul>
-          <li>6 tasks calibradas (easy → hard)</li>
-          <li>6 rubricas com hidden criteria</li>
-          <li>Prompt contratual do evaluator</li>
-          <li>Profile e plano de estudos</li>
-          <li>Dashboard local (React + Express)</li>
-          <li>Projeto backend base (BFF + Core)</li>
-        </ul>
-      </div>
-      <div class="next-item" style="border-top:3px solid var(--primary)">
-        <div class="phase">→ Próximo</div>
-        <h4>CLI de avaliação</h4>
-        <ul>
-          <li>Comando <code>evaluate T-NNN</code></li>
-          <li>Coleta diff e resultado de testes</li>
-          <li>Chama API do Claude com o prompt</li>
-          <li>Atualiza person.json automaticamente</li>
-          <li>Arquiva relatório em evaluate/reports/</li>
-        </ul>
-      </div>
-      <div class="next-item" style="border-top:3px solid var(--blue-light)">
-        <div class="phase">→ Futuro</div>
-        <h4>Qualidade e escala</h4>
-        <ul>
-          <li>Pattern files por tecnologia</li>
-          <li>Functional checks automatizados</li>
-          <li>Tasks de BUG e REFACTOR</li>
-          <li>Multi-dev — um dashboard por squad</li>
-          <li>Exportação de relatório para o gerente</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="summary">
-      O sistema está funcional para o fluxo completo de task → avaliação manual → profile → dashboard.<br>
-      O próximo passo crítico é o <strong>CLI de avaliação</strong> — que fecha o ciclo sem intervenção humana.
-    </div>
-  </div>
+</div>
 
 </div><!-- /deck -->
 
-<!-- ── NAV ── -->
 <div class="nav">
-  <button id="prev" onclick="go(-1)" disabled>←</button>
-  <span id="slide-counter">1 / 10</span>
-  <button id="next" onclick="go(1)">→</button>
+  <button id="prev" onclick="go(-1)" disabled>‹</button>
+  <span id="ctr">1 / 13</span>
+  <button id="next" onclick="go(1)">›</button>
 </div>
 
 <script>
-  const slides = document.querySelectorAll('.slide')
-  let cur = 0
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
 
-  function go(dir) {
-    slides[cur].classList.remove('active')
-    cur = Math.max(0, Math.min(slides.length - 1, cur + dir))
-    slides[cur].classList.add('active')
-    document.getElementById('slide-counter').textContent = `${cur + 1} / ${slides.length}`
-    document.getElementById('prev').disabled = cur === 0
-    document.getElementById('next').disabled = cur === slides.length - 1
-  }
+function go(dir) {
+  slides[cur].classList.remove('active');
+  cur = Math.max(0, Math.min(total - 1, cur + dir));
+  slides[cur].classList.add('active');
+  document.getElementById('ctr').textContent = `${cur + 1} / ${total}`;
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').disabled = cur === total - 1;
+  document.getElementById('bf').style.width = `${((cur + 1) / total) * 100}%`;
+}
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(1)
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') go(-1)
-  })
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                     { e.preventDefault(); go(-1); }
+});
+
+document.getElementById('bf').style.width = `${(1 / total) * 100}%`;
 </script>
 </body>
 </html>

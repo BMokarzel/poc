@@ -6,8 +6,8 @@ import LoadingScreen from '../layout/LoadingScreen'
 import EmptyState from '../ui/EmptyState'
 import { getTaskTechs } from '../../lib/utils'
 
-export default function TaskBoard() {
-  const { tasks, loading, updateStatus } = useTasks()
+export default function TaskBoard({ project = 'backend' }) {
+  const { tasks, loading, updateStatus } = useTasks(project)
   const [filters, setFilters] = useState({})
 
   const filtered = useMemo(() => {
@@ -40,7 +40,7 @@ export default function TaskBoard() {
         <EmptyState
           title="Nenhuma task encontrada"
           description={tasks.length === 0
-            ? 'Ainda não há tasks. Crie um arquivo T-001.md na pasta tasks/ para começar.'
+            ? `Ainda não há tasks para este projeto. Crie um arquivo T-001.md em tasks/${project}/ para começar.`
             : 'Nenhuma task corresponde aos filtros aplicados.'
           }
         />

@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(mv tasks/T-001.md tasks/backend/)",
+      "Bash(mv tasks/T-002.md tasks/backend/)",
+      "Bash(mv tasks/T-003.md tasks/backend/)",
+      "Bash(mv tasks/T-004.md tasks/backend/)",
+      "Bash(mv tasks/T-005.md tasks/backend/)",
+      "Bash(mv tasks/criteria/T-001.eval.json tasks/backend/criteria/)",
+      "Bash(mv tasks/criteria/T-002.eval.json tasks/backend/criteria/)",
+      "Bash(mv tasks/criteria/T-003.eval.json tasks/backend/criteria/)",
+      "Bash(mv tasks/criteria/T-004.eval.json tasks/backend/criteria/)",
+      "Bash(mv tasks/criteria/T-005.eval.json tasks/backend/criteria/)",
+      "Bash(cp tasks/criteria/template.json tasks/backend/criteria/template.json)",
+      "Bash(cp tasks/criteria/template.json tasks/ios/criteria/template.json)",
+      "Bash(cp tasks/criteria/template.json tasks/android/criteria/template.json)",
+      "Bash(cp tasks/criteria/template.json tasks/react/criteria/template.json)",
+      "Bash(cp tasks/criteria/template.json tasks/react-native/criteria/template.json)",
+      "Bash(mkdir -p ios android react react-native)",
+      "Bash(touch ios/.gitkeep android/.gitkeep react/.gitkeep react-native/.gitkeep)",
+      "Bash(curl -s \"http://localhost:3001/api/tasks?project=backend\")",
+      "Bash(npx vite:*)",
+      "Read(//c/Users/User/Desktop/poc/site/**)",
+      "Bash(for i:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/User/Desktop/poc/slides/**)",
+      "Bash(done)",
+      "Bash(find /c/Users/User/Desktop/poc -name *.svg)",
+      "Read(//mnt/c/Users/User/Desktop/poc/**)",
+      "Read(//c//**)",
+      "Bash(cmd /c \"dir C:\\\\Users\\\\User\\\\Desktop\\\\poc\\\\slides\" 2>&1)",
+      "Bash(cmd /c \"dir /s C:\\\\Users\\\\User\\\\Desktop\\\\poc\\\\slides\" \")",
+      "Bash(cmd /c \"dir /s C:\\\\Users\\\\User\\\\Desktop\\\\poc\\\\slides\"\")",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\Users\\\\User\\\\Desktop\\\\poc\\\\slides' -ErrorAction SilentlyContinue | Select-Object Name, Length\")",
+      "Bash(powershell -Command \"Test-Path 'C:\\\\Users\\\\User\\\\Desktop\\\\poc\\\\slides'; \\(Get-Item 'C:\\\\Users\\\\User\\\\Desktop\\\\poc\\\\slides'\\).GetType\\(\\).Name; ls 'C:\\\\Users\\\\User\\\\Desktop\\\\poc\\\\slides' | select Name\")",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\Users\\\\User\\\\Desktop\\\\poc' -Recurse -Filter '*.svg' | Select-Object FullName, Length | Format-Table\")"
+    ]
+  }
+}

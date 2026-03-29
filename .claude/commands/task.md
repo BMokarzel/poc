@@ -1,10 +1,16 @@
 Implemente a task $ARGUMENTS seguindo o processo abaixo com rigor.
 
+O argumento pode ser fornecido em dois formatos:
+- `backend T-001` ou `backend/T-001` — projeto + ID da task
+- `T-001` — assume projeto `backend` por padrão
+
+Extraia o projeto e o ID da task a partir de $ARGUMENTS antes de começar.
+
 ---
 
 ## 1. Leitura da task
 
-Leia o arquivo `tasks/$ARGUMENTS.md` na íntegra.
+Leia o arquivo `tasks/{projeto}/{ID}.md` na íntegra (ex: `tasks/backend/T-001.md`).
 Extraia e registre mentalmente:
 - **Contexto**: qual é o estado atual e o problema
 - **Escopo**: lista do que DEVE ser feito (cada item é verificável)
@@ -12,6 +18,8 @@ Extraia e registre mentalmente:
 - **Fora do escopo**: o que explicitamente NÃO deve ser feito
 - **Definition of done**: critérios binários que determinam conclusão
 - **Domain**: partes do código que pertencem a esta task
+
+Os critérios de avaliação estão em `tasks/{projeto}/criteria/{ID}.eval.json`.
 
 ---
 
