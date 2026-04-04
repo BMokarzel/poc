@@ -7,9 +7,8 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '../../')
-const TASKS_DIR = path.join(ROOT, 'tasks')
-const PERSON_FILE = path.join(TASKS_DIR, 'person', 'person.json')
-const PLAN_FILE = path.join(TASKS_DIR, 'person', 'study', 'plan.json')
+const PERSON_FILE = path.join(ROOT, 'tasks', 'person', 'person.json')
+const PLAN_FILE = path.join(ROOT, 'tasks', 'person', 'study', 'plan.json')
 
 const PROJECTS = ['backend', 'ios', 'android', 'react', 'react-native']
 const PROJECT_LABELS = {
@@ -27,7 +26,7 @@ app.use(express.json())
 // --- helpers ---
 
 function projectDir(project) {
-  return path.join(TASKS_DIR, project)
+  return path.join(ROOT, project, 'tasks')
 }
 
 function readStatus(project) {
