@@ -1,14 +1,13 @@
 import express from 'express'
 import cors from 'cors'
-import matter from 'gray-matter'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '../../')
-const PERSON_FILE = path.join(ROOT, 'tasks', 'person', 'person.json')
-const PLAN_FILE = path.join(ROOT, 'tasks', 'person', 'study', 'plan.json')
+const PERSON_FILE = path.join(ROOT, '.trailblazers', 'person', 'person.json')
+const PLAN_FILE = path.join(ROOT, '.trailblazers', 'person', 'study', 'plan.json')
 
 const PROJECTS = ['backend', 'ios', 'android', 'react', 'react-native']
 const PROJECT_LABELS = {
@@ -29,52 +28,18 @@ function projectDir(project) {
   return path.join(ROOT, project, 'tasks')
 }
 
-function readStatus(project) {
-  try {
-    return JSON.parse(fs.readFileSync(path.join(projectDir(project), 'status.json'), 'utf8'))
-  } catch {
-    return {}
-  }
-}
-
-function writeStatus(project, data) {
-  fs.writeFileSync(path.join(projectDir(project), 'status.json'), JSON.stringify(data, null, 2))
-}
-
 function parseTasks(project) {
   const dir = projectDir(project)
   if (!fs.existsSync(dir)) return []
 
-  const statuses = readStatus(project)
-  const files = fs.readdirSync(dir).filter(f => /^T-\d+.*\.md$/.test(f))
-
-  return files.map(file => {
-    const raw = fs.readFileSync(path.join(dir, file), 'utf8')
-    const { data: frontmatter, content } = matter(raw)
-
-    const sections = {}
-    const sectionRegex = /^## (.+)$/gm
-    let match
-    const sectionStarts = []
-
-    while ((match = sectionRegex.exec(content)) !== null) {
-      sectionStarts.push({ title: match[1], index: match.index })
-    }
-
-    sectionStarts.forEach((sec, i) => {
-      const start = content.indexOf('\n', sec.index) + 1
-      const end = i + 1 < sectionStarts.length ? sectionStarts[i + 1].index : content.length
-      sections[sec.title] = content.slice(start, end).trim()
+  return fs.readdirSync(dir)
+    .filter(f => /^T-\d+.*\.json$/.test(f))
+    .map(file => {
+      const task = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'))
+      // criteria não é enviado ao site
+      const { criteria, ...pub } = task
+      return { ...pub, project }
     })
-
-    return {
-      ...frontmatter,
-      id: frontmatter.id || file.replace('.md', ''),
-      project,
-      status: statuses[frontmatter.id] || 'todo',
-      sections,
-    }
-  })
 }
 
 // --- routes ---
@@ -84,7 +49,7 @@ app.get('/api/projects', (_req, res) => {
     const projects = PROJECTS.map(id => {
       const dir = projectDir(id)
       const taskCount = fs.existsSync(dir)
-        ? fs.readdirSync(dir).filter(f => /^T-\d+.*\.md$/.test(f)).length
+        ? fs.readdirSync(dir).filter(f => /^T-\d+.*\.json$/.test(f)).length
         : 0
       return { id, label: PROJECT_LABELS[id], taskCount }
     })
@@ -121,9 +86,15 @@ app.patch('/api/tasks/:id/status', (req, res) => {
   if (!valid.includes(status)) {
     return res.status(400).json({ error: 'Invalid status' })
   }
-  const statuses = readStatus(project)
-  statuses[req.params.id] = status
-  writeStatus(project, statuses)
+
+  const filePath = path.join(projectDir(project), `${req.params.id}.json`)
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Not found' })
+  }
+
+  const task = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+  task.status = status
+  fs.writeFileSync(filePath, JSON.stringify(task, null, 2))
   res.json({ id: req.params.id, status, project })
 })
 

@@ -4,13 +4,28 @@ import {
   nextStatus, markdownSectionToHtml, getTaskTechs, getTechBadgeStyle,
 } from '../../lib/utils'
 
-const SECTION_LABELS = {
-  'Contexto':          'Contexto',
-  'Escopo':            'Escopo',
-  'Dicas':             'Dicas',
-  'Fora do escopo':    'Fora do escopo',
-  'Definition of done':'Definition of Done',
-  'Domain':            'Domain',
+function taskSections(task) {
+  const sections = []
+
+  if (task.context)
+    sections.push({ label: 'Contexto', content: task.context })
+
+  if (task.scope)
+    sections.push({ label: 'Escopo', content: task.scope })
+
+  if (task.tips?.length)
+    sections.push({ label: 'Dicas', content: task.tips.map(t => `- ${t}`).join('\n') })
+
+  if (task.out_of_scope?.length)
+    sections.push({ label: 'Fora do escopo', content: task.out_of_scope.map(t => `- ${t}`).join('\n') })
+
+  if (task.definition_of_done?.length)
+    sections.push({ label: 'Definition of Done', content: task.definition_of_done.map(d => `- [ ] ${d.description}`).join('\n') })
+
+  if (task.domain?.length)
+    sections.push({ label: 'Domain', content: task.domain.map(d => `- \`${d}\``).join('\n') })
+
+  return sections
 }
 
 const Chevron = ({ open }) => (
@@ -75,21 +90,17 @@ const TaskCard = memo(function TaskCard({ task, onStatusChange }) {
                 Estimativa: <span className="font-medium">{task.estimate}</span>
               </p>
             )}
-            {Object.entries(SECTION_LABELS).map(([key, label]) => {
-              const content = task.sections?.[key]
-              if (!content) return null
-              return (
-                <div key={key}>
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
-                    {label}
-                  </h4>
-                  <div
-                    className="text-sm text-navy dark:text-slate-200 leading-relaxed prose-sm"
-                    dangerouslySetInnerHTML={{ __html: markdownSectionToHtml(content) }}
-                  />
-                </div>
-              )
-            })}
+            {taskSections(task).map(({ label, content }) => (
+              <div key={label}>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
+                  {label}
+                </h4>
+                <div
+                  className="text-sm text-navy dark:text-slate-200 leading-relaxed prose-sm"
+                  dangerouslySetInnerHTML={{ __html: markdownSectionToHtml(content) }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
